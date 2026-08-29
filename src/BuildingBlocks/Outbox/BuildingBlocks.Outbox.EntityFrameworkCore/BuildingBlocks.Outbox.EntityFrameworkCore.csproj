@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.11" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.11" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Core\BuildingBlocks.Core\BuildingBlocks.Core.csproj" />
+      <ProjectReference Include="..\..\Messaging\BuildingBlocks.Messaging.Abstractions\BuildingBlocks.Messaging.Abstractions.csproj" />
+      <ProjectReference Include="..\BuildingBlocks.Outbox.Abstractions\BuildingBlocks.Outbox.Abstractions.csproj" />
+    </ItemGroup>
+
+</Project>
