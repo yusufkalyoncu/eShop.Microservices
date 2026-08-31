@@ -146,7 +146,7 @@ internal sealed class OutboxProcessor(
 
         try
         {
-            var msgType = BuildingBlocks.Outbox.Abstractions.OutboxEventTypeResolver.GetEventType(message.Type);
+            var msgType = OutboxEventTypeResolver.GetEventType(message.Type);
 
             if (msgType != null)
             {
@@ -155,7 +155,7 @@ internal sealed class OutboxProcessor(
                 if (content is IIntegrationEvent)
                 {
                     dynamic dynamicContent = content;
-                    await ((dynamic)eventBus).PublishAsync(dynamicContent, ct);
+                    await eventBus.PublishAsync(dynamicContent, ct);
                     processedDate = DateTime.UtcNow;
                 }
                 else
