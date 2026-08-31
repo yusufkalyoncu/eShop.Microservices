@@ -16,7 +16,7 @@ internal sealed class OutboxProcessor(
     IOptions<OutboxOptions> options,
     ILogger<OutboxProcessor> logger)
 {
-    private static readonly ConcurrentDictionary<string, Type?> TypeCache = new();
+
     private readonly OutboxOptions _options = options.Value;
 
     
@@ -124,15 +124,16 @@ internal sealed class OutboxProcessor(
 
         try
         {
-            var msgType = GetMessageType(message.Type);
+            var msgType = BuildingBlocks.Outbox.Abstractions.OutboxEventTypeResolver.GetEventType(message.Type);
 
             if (msgType != null)
             {
                 var content = JsonSerializer.Deserialize(message.Content, msgType, OutboxJsonOptions.Default);
 
-                if (content is IIntegrationEvent integrationEvent)
+                if (content is IIntegrationEvent)
                 {
-                    await eventBus.PublishAsync(integrationEvent, ct);
+                    dynamic dynamicContent = content;
+                    await ((dynamic)eventBus).PublishAsync(dynamicContent, ct);
                     processedDate = DateTime.UtcNow;
                 }
                 else
@@ -156,18 +157,7 @@ internal sealed class OutboxProcessor(
         resultQueue.Enqueue(new OutboxUpdateResult(message.Id, processedDate, error, currentRetryCount));
     }
 
-    private static Type? GetMessageType(string typeName)
-    {
-        return TypeCache.GetOrAdd(typeName, type =>
-        {
-            var resolvedType = Type.GetType(type);
-            if (resolvedType != null) return resolvedType;
 
-            return AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes())
-                .FirstOrDefault(t => t.FullName == type || t.Name == type);
-        });
-    }
 
     private readonly record struct OutboxUpdateResult(Guid Id, DateTime? ProcessedDate, string? Error, int RetryCount);
 }
