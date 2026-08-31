@@ -1,6 +1,6 @@
-using BuildingBlocks.Outbox.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using BuildingBlocks.Outbox.Abstractions;
 
 namespace BuildingBlocks.Outbox.PostgreSql;
 

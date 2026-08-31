@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 using BuildingBlocks.Messaging.Abstractions;
 using BuildingBlocks.Outbox.Abstractions;
-using BuildingBlocks.Outbox.EntityFrameworkCore;
 using Dapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,6 +17,24 @@ internal sealed class OutboxProcessor(
 {
 
     private readonly OutboxOptions _options = options.Value;
+
+    private static readonly TimeSpan[] BackoffSchedule =
+    [
+        TimeSpan.FromSeconds(5),
+        TimeSpan.FromSeconds(30),
+        TimeSpan.FromMinutes(2),
+        TimeSpan.FromMinutes(10),
+        TimeSpan.FromMinutes(30)
+    ];
+
+    private static DateTime? CalculateNextAttempt(int retryCount)
+    {
+        var index = Math.Min(Math.Max(0, retryCount - 1), BackoffSchedule.Length - 1);
+        var baseDelay = BackoffSchedule[index];
+        
+        var jitterMs = Random.Shared.Next(-20, 21) * baseDelay.TotalMilliseconds / 100;
+        return DateTime.UtcNow.Add(baseDelay).AddMilliseconds(jitterMs);
+    }
 
     
     public async Task<int> ProcessBatchAsync(CancellationToken cancellationToken)
@@ -36,9 +53,9 @@ internal sealed class OutboxProcessor(
                           WHERE id IN (
                               SELECT id 
                               FROM outbox_messages
-                              WHERE processed_on_utc IS NULL 
+                              WHERE status = 0 
                                 AND (locked_until_utc IS NULL OR locked_until_utc < @Now)
-                                AND retry_count < @MaxRetryCount
+                                AND (next_attempt_at_utc IS NULL OR next_attempt_at_utc <= @Now)
                               ORDER BY occurred_on_utc
                               LIMIT @BatchSize
                               FOR UPDATE SKIP LOCKED
@@ -56,8 +73,7 @@ internal sealed class OutboxProcessor(
                     {
                         LockExpiration = lockExpiration,
                         Now = DateTime.UtcNow,
-                        _options.BatchSize,
-                        _options.MaxRetryCount
+                        _options.BatchSize
                     }))
                     .OrderBy(x => x.OccurredOnUtc)
                     .ToList();
@@ -86,10 +102,14 @@ internal sealed class OutboxProcessor(
                                 SET processed_on_utc = u.processed_on_utc,
                                     error = u.error,
                                     retry_count = u.retry_count,
+                                    status = u.status,
+                                    next_attempt_at_utc = u.next_attempt_at_utc,
                                     locked_until_utc = NULL
                                 FROM (
-                                    SELECT * FROM UNNEST(@Ids::uuid[], @Dates::timestamp[], @Errors::text[], @RetryCounts::integer[]) 
-                                    AS t(id, processed_on_utc, error, retry_count) 
+                                    SELECT * FROM UNNEST(
+                                        @Ids::uuid[], @Dates::timestamp[], @Errors::text[], 
+                                        @RetryCounts::integer[], @Statuses::integer[], @NextAttempts::timestamp[]
+                                    ) AS t(id, processed_on_utc, error, retry_count, status, next_attempt_at_utc) 
                                 ) AS u
                                 WHERE m.id = u.id
                                 """;
@@ -99,7 +119,9 @@ internal sealed class OutboxProcessor(
                     Ids = results.Select(x => x.Id).ToArray(),
                     Dates = results.Select(x => x.ProcessedDate).ToArray(),
                     Errors = results.Select(x => x.Error).ToArray(),
-                    RetryCounts = results.Select(x => x.RetryCount).ToArray()
+                    RetryCounts = results.Select(x => x.RetryCount).ToArray(),
+                    Statuses = results.Select(x => (int)x.Status).ToArray(),
+                    NextAttempts = results.Select(x => x.NextAttemptAtUtc).ToArray()
                 });
             }
 
@@ -154,10 +176,30 @@ internal sealed class OutboxProcessor(
             currentRetryCount++;
         }
 
-        resultQueue.Enqueue(new OutboxUpdateResult(message.Id, processedDate, error, currentRetryCount));
+        if (error != null)
+        {
+            var status = currentRetryCount >= _options.MaxRetryCount 
+                ? OutboxMessageStatus.DeadLettered 
+                : OutboxMessageStatus.Pending;
+
+            var nextAttempt = status == OutboxMessageStatus.Pending 
+                ? CalculateNextAttempt(currentRetryCount) 
+                : null;
+
+            if (status == OutboxMessageStatus.DeadLettered)
+            {
+                logger.LogWarning(
+                    "Outbox message {Id} of type {Type} dead-lettered after {RetryCount} attempts. Last error: {Error}",
+                    message.Id, message.Type, currentRetryCount, error);
+            }
+
+            resultQueue.Enqueue(new OutboxUpdateResult(message.Id, null, error, currentRetryCount, status, nextAttempt));
+        }
+        else
+        {
+            resultQueue.Enqueue(new OutboxUpdateResult(message.Id, processedDate, null, currentRetryCount, OutboxMessageStatus.Processed, null));
+        }
     }
 
-
-
-    private readonly record struct OutboxUpdateResult(Guid Id, DateTime? ProcessedDate, string? Error, int RetryCount);
+    private readonly record struct OutboxUpdateResult(Guid Id, DateTime? ProcessedDate, string? Error, int RetryCount, OutboxMessageStatus Status, DateTime? NextAttemptAtUtc);
 }

@@ -1,4 +1,4 @@
-namespace BuildingBlocks.Outbox.EntityFrameworkCore;
+namespace BuildingBlocks.Outbox.Abstractions;
 
 public sealed class OutboxMessage
 {
@@ -8,8 +8,10 @@ public sealed class OutboxMessage
     public DateTime OccurredOnUtc { get; init; }
     public DateTime? ProcessedOnUtc { get; private set; }
     public DateTime? LockedUntilUtc { get; private set; }
+    public DateTime? NextAttemptAtUtc { get; private set; }
     public string? Error { get; private set; }
     public int RetryCount { get; private set; }
+    public OutboxMessageStatus Status { get; private set; } = OutboxMessageStatus.Pending;
 
     private OutboxMessage() { }
 
@@ -20,5 +22,6 @@ public sealed class OutboxMessage
         Content = content;
         OccurredOnUtc = DateTime.UtcNow;
         RetryCount = 0;
+        Status = OutboxMessageStatus.Pending;
     }
 }

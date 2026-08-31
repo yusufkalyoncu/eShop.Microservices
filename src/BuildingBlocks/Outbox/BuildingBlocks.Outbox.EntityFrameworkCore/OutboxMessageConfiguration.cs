@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using BuildingBlocks.Outbox.Abstractions;
 
 namespace BuildingBlocks.Outbox.EntityFrameworkCore;
 
@@ -13,5 +14,7 @@ public class OutboxMessageConfiguration : IEntityTypeConfiguration<OutboxMessage
         builder.Property(x => x.Content).IsRequired();
         builder.Property(x => x.OccurredOnUtc).IsRequired();
         builder.Property(x => x.RetryCount).IsRequired().HasDefaultValue(0);
+        builder.Property(x => x.Status).IsRequired().HasDefaultValue(OutboxMessageStatus.Pending);
+        builder.Property(x => x.NextAttemptAtUtc).IsRequired(false);
     }
 }
