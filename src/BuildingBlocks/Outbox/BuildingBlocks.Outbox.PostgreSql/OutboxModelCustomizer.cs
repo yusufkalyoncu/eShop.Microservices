@@ -20,7 +20,7 @@ public class OutboxModelCustomizer(ModelCustomizerDependencies dependencies)
             builder.Property(x => x.OccurredOnUtc).IsRequired();
             builder.Property(x => x.RetryCount).IsRequired().HasDefaultValue(0);
 
-            builder.HasIndex(x => new { x.ProcessedOnUtc, x.RetryCount })
+            builder.HasIndex(x => x.OccurredOnUtc)
                 .HasFilter("\"processed_on_utc\" IS NULL");
         });
     }

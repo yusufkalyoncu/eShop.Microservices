@@ -11,6 +11,9 @@ public sealed class OutboxOptions
     /// <summary>The maximum duration the processor will wait for a new signal before checking for messages again.</summary>
     public TimeSpan PollTimeout { get; set; } = TimeSpan.FromMinutes(5);
 
+    /// <summary>The maximum duration a message can be locked for processing. If the lock expires, the message will be available for processing again.</summary>
+    public TimeSpan LockTimeout { get; set; } = TimeSpan.FromMinutes(5);
+
     /// <summary>The maximum number of concurrent publish operations within a batch.</summary>
     public int MaxDegreeOfParallelism { get; set; } = 1;
 }

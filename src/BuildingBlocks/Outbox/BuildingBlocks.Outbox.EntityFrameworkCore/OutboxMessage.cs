@@ -7,6 +7,7 @@ public sealed class OutboxMessage
     public string Content { get; init; } = null!;
     public DateTime OccurredOnUtc { get; init; }
     public DateTime? ProcessedOnUtc { get; private set; }
+    public DateTime? LockedUntilUtc { get; private set; }
     public string? Error { get; private set; }
     public int RetryCount { get; private set; }
 

@@ -19,82 +19,96 @@ internal sealed class OutboxProcessor(
     private static readonly ConcurrentDictionary<string, Type?> TypeCache = new();
     private readonly OutboxOptions _options = options.Value;
 
+    
     public async Task<int> ProcessBatchAsync(CancellationToken cancellationToken)
     {
-        await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
-        await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
+        List<OutboxMessage> messages;
 
         try
         {
-            var messages = (await connection.QueryAsync<OutboxMessage>(
-                """
-                SELECT 
-                    id AS Id, 
-                    type AS Type, 
-                    content AS Content,
-                    retry_count AS RetryCount
-                FROM outbox_messages
-                WHERE processed_on_utc IS NULL AND retry_count < @MaxRetryCount
-                ORDER BY occurred_on_utc
-                LIMIT @BatchSize
-                FOR UPDATE SKIP LOCKED
-                """,
-                new { _options.BatchSize, _options.MaxRetryCount },
-                transaction: transaction
-            )).ToList();
-
-            if (messages.Count == 0)
+            await using (var connection = await dataSource.OpenConnectionAsync(cancellationToken))
             {
-                await transaction.CommitAsync(cancellationToken);
-                return 0;
+                var lockExpiration = options.Value.LockTimeout;
+
+                var sql = """
+                          UPDATE outbox_messages
+                          SET locked_until_utc = @LockExpiration
+                          WHERE id IN (
+                              SELECT id 
+                              FROM outbox_messages
+                              WHERE processed_on_utc IS NULL 
+                                AND (locked_until_utc IS NULL OR locked_until_utc < @Now)
+                                AND retry_count < @MaxRetryCount
+                              ORDER BY occurred_on_utc
+                              LIMIT @BatchSize
+                              FOR UPDATE SKIP LOCKED
+                          )
+                          RETURNING 
+                              id AS Id, 
+                              type AS Type, 
+                              content AS Content, 
+                              retry_count AS RetryCount;
+                          """;
+
+                messages = (await connection.QueryAsync<OutboxMessage>(
+                    sql,
+                    new
+                    {
+                        LockExpiration = lockExpiration,
+                        Now = DateTime.UtcNow,
+                        _options.BatchSize,
+                        _options.MaxRetryCount
+                    }))
+                    .OrderBy(x => x.OccurredOnUtc)
+                    .ToList();
             }
 
-            var updateQueue = new ConcurrentQueue<OutboxUpdateResult>();
+            if (messages.Count == 0) return 0;
 
-            var parallelOptions = new ParallelOptions 
-            { 
+            var updateQueue = new ConcurrentQueue<OutboxUpdateResult>();
+            var parallelOptions = new ParallelOptions
+            {
                 MaxDegreeOfParallelism = _options.MaxDegreeOfParallelism,
-                CancellationToken = cancellationToken 
+                CancellationToken = cancellationToken
             };
 
-            await Parallel.ForEachAsync(messages, parallelOptions, async (msg, ct) =>
-            {
-                await PublishMessageAsync(msg, updateQueue, ct);
-            });
+            await Parallel.ForEachAsync(messages, parallelOptions,
+                async (msg, ct) => { await PublishMessageAsync(msg, updateQueue, ct); });
 
             if (!updateQueue.IsEmpty)
             {
                 var results = updateQueue.ToArray();
 
-                var sql = """
-                          UPDATE outbox_messages AS m
-                          SET processed_on_utc = u.processed_on_utc,
-                              error = u.error,
-                              retry_count = u.retry_count
-                          FROM (
-                              SELECT * FROM UNNEST(@Ids, @Dates, @Errors, @RetryCounts) 
-                              AS t(id, processed_on_utc, error, retry_count) 
-                          ) AS u
-                          WHERE m.id = u.id
-                          """;
+                await using var updateConnection = await dataSource.OpenConnectionAsync(cancellationToken);
 
-                await connection.ExecuteAsync(sql, new
+                var updateSql = """
+                                UPDATE outbox_messages AS m
+                                SET processed_on_utc = u.processed_on_utc,
+                                    error = u.error,
+                                    retry_count = u.retry_count,
+                                    locked_until_utc = NULL
+                                FROM (
+                                    SELECT * FROM UNNEST(@Ids::uuid[], @Dates::timestamp[], @Errors::text[], @RetryCounts::integer[]) 
+                                    AS t(id, processed_on_utc, error, retry_count) 
+                                ) AS u
+                                WHERE m.id = u.id
+                                """;
+
+                await updateConnection.ExecuteAsync(updateSql, new
                 {
                     Ids = results.Select(x => x.Id).ToArray(),
                     Dates = results.Select(x => x.ProcessedDate).ToArray(),
                     Errors = results.Select(x => x.Error).ToArray(),
                     RetryCounts = results.Select(x => x.RetryCount).ToArray()
-                }, transaction: transaction);
+                });
             }
 
-            await transaction.CommitAsync(cancellationToken);
             logger.LogInformation("{Count} messages processed.", messages.Count);
             return messages.Count;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Batch processing failed.");
-            await transaction.RollbackAsync(cancellationToken);
             throw;
         }
     }
