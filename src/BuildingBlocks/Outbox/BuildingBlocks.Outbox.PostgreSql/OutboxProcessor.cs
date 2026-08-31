@@ -152,10 +152,9 @@ internal sealed class OutboxProcessor(
             {
                 var content = JsonSerializer.Deserialize(message.Content, msgType, OutboxJsonOptions.Default);
 
-                if (content is IIntegrationEvent)
+                if (content is IIntegrationEvent integrationEvent)
                 {
-                    dynamic dynamicContent = content;
-                    await eventBus.PublishAsync(dynamicContent, ct);
+                    await eventBus.PublishAsync(integrationEvent, msgType, ct);
                     processedDate = DateTime.UtcNow;
                 }
                 else
