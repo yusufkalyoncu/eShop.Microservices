@@ -39,39 +39,55 @@ internal sealed class OutboxProcessor(
     
     public async Task<int> ProcessBatchAsync(CancellationToken cancellationToken)
     {
-        List<OutboxMessage> messages;
-
         try
         {
+            List<OutboxMessage> messages;
             await using (var connection = await dataSource.OpenConnectionAsync(cancellationToken))
             {
-                var lockExpiration = options.Value.LockTimeout;
-
                 var sql = """
-                          UPDATE outbox_messages
-                          SET locked_until_utc = @LockExpiration
-                          WHERE id IN (
-                              SELECT id 
+                          -- 1. True Head Pattern & Advisory Locks for partition ordering
+                          WITH partition_heads AS (
+                              SELECT DISTINCT ON (partition_key)
+                                  partition_key, locked_until_utc, next_attempt_at_utc
                               FROM outbox_messages
-                              WHERE status = 0 
+                              WHERE status = 0 AND partition_key IS NOT NULL
+                              ORDER BY partition_key, occurred_on_utc, id
+                          ),
+                          ready_partitions AS (
+                              SELECT partition_key FROM partition_heads
+                              WHERE (locked_until_utc IS NULL OR locked_until_utc < @Now)
+                                AND (next_attempt_at_utc IS NULL OR next_attempt_at_utc <= @Now)
+                          ),
+                          locked_partitions AS (
+                              SELECT partition_key
+                              FROM ready_partitions
+                              WHERE pg_try_advisory_xact_lock(hashtext('outbox'), hashtext(partition_key))
+                              LIMIT @BatchSize
+                          ),
+                          candidate_batch AS (
+                              SELECT id
+                              FROM outbox_messages
+                              WHERE status = 0
                                 AND (locked_until_utc IS NULL OR locked_until_utc < @Now)
                                 AND (next_attempt_at_utc IS NULL OR next_attempt_at_utc <= @Now)
+                                AND (partition_key IS NULL OR partition_key IN (SELECT partition_key FROM locked_partitions))
                               ORDER BY occurred_on_utc
                               LIMIT @BatchSize
                               FOR UPDATE SKIP LOCKED
                           )
-                          RETURNING 
-                              id AS Id, 
-                              type AS Type, 
-                              content AS Content, 
-                              retry_count AS RetryCount;
+                          UPDATE outbox_messages m
+                          SET locked_until_utc = @LockExpiration
+                          FROM candidate_batch c
+                          WHERE m.id = c.id
+                          RETURNING m.id AS Id, m.type AS Type, m.content AS Content, m.partition_key AS PartitionKey,
+                                    m.occurred_on_utc AS OccurredOnUtc, m.retry_count AS RetryCount;
                           """;
 
                 messages = (await connection.QueryAsync<OutboxMessage>(
                     sql,
                     new
                     {
-                        LockExpiration = lockExpiration,
+                        LockExpiration = DateTime.UtcNow.Add(_options.LockTimeout),
                         Now = DateTime.UtcNow,
                         _options.BatchSize
                     }))
@@ -82,14 +98,43 @@ internal sealed class OutboxProcessor(
             if (messages.Count == 0) return 0;
 
             var updateQueue = new ConcurrentQueue<OutboxUpdateResult>();
+            var releaseQueue = new ConcurrentQueue<Guid>();
+            
             var parallelOptions = new ParallelOptions
             {
                 MaxDegreeOfParallelism = _options.MaxDegreeOfParallelism,
                 CancellationToken = cancellationToken
             };
 
-            await Parallel.ForEachAsync(messages, parallelOptions,
-                async (msg, ct) => { await PublishMessageAsync(msg, updateQueue, ct); });
+            var groups = messages
+                .GroupBy(m => m.PartitionKey ?? m.Id.ToString())
+                .ToList();
+
+            await Parallel.ForEachAsync(groups, parallelOptions, async (group, ct) =>
+            {
+                var ordered = group.OrderBy(m => m.OccurredOnUtc).ToList();
+                for (var i = 0; i < ordered.Count; i++)
+                {
+                    var succeeded = await PublishMessageAsync(ordered[i], updateQueue, ct);
+                    if (succeeded) continue;
+
+                    // True Head check ensures this partition won't be picked up again until this failed message retries,
+                    // so it is safe to immediately release locks for the rest of the batch to avoid 'lock leak' stalls.
+                    for (var j = i + 1; j < ordered.Count; j++)
+                    {
+                        releaseQueue.Enqueue(ordered[j].Id);
+                    }
+                    break;
+                }
+            });
+
+            if (!releaseQueue.IsEmpty)
+            {
+                await using var releaseConnection = await dataSource.OpenConnectionAsync(cancellationToken);
+                await releaseConnection.ExecuteAsync(
+                    "UPDATE outbox_messages SET locked_until_utc = NULL WHERE id = ANY(@Ids) AND status = 0",
+                    new { Ids = releaseQueue.ToArray() });
+            }
 
             if (!updateQueue.IsEmpty)
             {
@@ -135,7 +180,7 @@ internal sealed class OutboxProcessor(
         }
     }
 
-    private async Task PublishMessageAsync(
+    private async Task<bool> PublishMessageAsync(
         OutboxMessage message,
         ConcurrentQueue<OutboxUpdateResult> resultQueue,
         CancellationToken ct)
@@ -193,11 +238,11 @@ internal sealed class OutboxProcessor(
             }
 
             resultQueue.Enqueue(new OutboxUpdateResult(message.Id, null, error, currentRetryCount, status, nextAttempt));
+            return false;
         }
-        else
-        {
-            resultQueue.Enqueue(new OutboxUpdateResult(message.Id, processedDate, null, currentRetryCount, OutboxMessageStatus.Processed, null));
-        }
+
+        resultQueue.Enqueue(new OutboxUpdateResult(message.Id, processedDate, null, currentRetryCount, OutboxMessageStatus.Processed, null));
+        return true;
     }
 
     private readonly record struct OutboxUpdateResult(Guid Id, DateTime? ProcessedDate, string? Error, int RetryCount, OutboxMessageStatus Status, DateTime? NextAttemptAtUtc);

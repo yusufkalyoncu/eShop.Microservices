@@ -5,6 +5,7 @@ public sealed class OutboxMessage
     public Guid Id { get; init; }
     public string Type { get; init; } = null!;
     public string Content { get; init; } = null!;
+    public string? PartitionKey { get; init; }
     public DateTime OccurredOnUtc { get; init; }
     public DateTime? ProcessedOnUtc { get; private set; }
     public DateTime? LockedUntilUtc { get; private set; }
@@ -15,11 +16,12 @@ public sealed class OutboxMessage
 
     private OutboxMessage() { }
 
-    public OutboxMessage(string type, string content)
+    public OutboxMessage(string type, string content, string? partitionKey = null)
     {
         Id = Guid.NewGuid();
         Type = type;
         Content = content;
+        PartitionKey = partitionKey;
         OccurredOnUtc = DateTime.UtcNow;
         RetryCount = 0;
         Status = OutboxMessageStatus.Pending;
