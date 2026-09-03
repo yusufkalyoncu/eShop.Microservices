@@ -1,3 +1,5 @@
+using FluentValidation;
+
 namespace BuildingBlocks.Outbox.Abstractions;
 
 public sealed class OutboxOptions
@@ -16,4 +18,22 @@ public sealed class OutboxOptions
 
     /// <summary>The maximum number of concurrent publish operations within a batch.</summary>
     public int MaxDegreeOfParallelism { get; set; } = 1;
+}
+
+public class OutboxOptionsValidator : AbstractValidator<OutboxOptions>
+{
+    public OutboxOptionsValidator()
+    {
+        RuleFor(x => x.BatchSize)
+            .InclusiveBetween(1, 1000)
+            .WithMessage("Outbox BatchSize must be between 1 and 1000.");
+
+        RuleFor(x => x.MaxRetryCount)
+            .InclusiveBetween(0, 20)
+            .WithMessage("Outbox MaxRetryCount must be between 0 and 20.");
+            
+        RuleFor(x => x.MaxDegreeOfParallelism)
+            .InclusiveBetween(1, 100)
+            .WithMessage("Outbox MaxDegreeOfParallelism must be between 1 and 100.");
+    }
 }

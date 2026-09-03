@@ -1,3 +1,4 @@
+using BuildingBlocks.Core.Options;
 using BuildingBlocks.Outbox.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,9 +14,7 @@ public static class DependencyInjection
     {
         services.AddOptions<OutboxOptions>()
             .Configure(configure ?? (_ => { }))
-            .Validate(o => o.BatchSize is > 0 and <= 1000)
-            .Validate(o => o.MaxRetryCount is >= 0 and <= 20)
-            .Validate(o => o.MaxDegreeOfParallelism is > 0 and <= 100)
+            .ValidateFluentValidation()
             .ValidateOnStart();
 
         services.AddScoped<IOutboxService, OutboxService<TDbContext>>();

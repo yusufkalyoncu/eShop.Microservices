@@ -1,3 +1,4 @@
+using BuildingBlocks.Core.Options;
 using BuildingBlocks.Inbox.Abstractions;
 using BuildingBlocks.Inbox.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -13,8 +14,7 @@ public static class DependencyInjection
     {
         services.AddOptions<InboxOptions>()
             .Configure(configure ?? (_ => { }))
-            .Validate(o => o.BatchSize is > 0 and <= 1000)
-            .Validate(o => o.MaxRetryCount is >= 0 and <= 20)
+            .ValidateFluentValidation()
             .ValidateOnStart();
 
         services.AddScoped<IInboxService, InboxService<TDbContext>>();
