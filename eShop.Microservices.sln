@@ -30,6 +30,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Outbox.Entit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Outbox.PostgreSql", "src\BuildingBlocks\Outbox\BuildingBlocks.Outbox.PostgreSql\BuildingBlocks.Outbox.PostgreSql.csproj", "{4312D94F-8526-4CC0-9F20-45BA0174F877}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Inbox", "Inbox", "{5D3EA92A-905A-419C-8B6E-AC7BFD2F536F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Inbox.Abstractions", "src\BuildingBlocks\Inbox\BuildingBlocks.Inbox.Abstractions\BuildingBlocks.Inbox.Abstractions.csproj", "{ABE70113-AF3A-457B-AF68-753678AF1F6D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Inbox.EntityFrameworkCore", "src\BuildingBlocks\Inbox\BuildingBlocks.Inbox.EntityFrameworkCore\BuildingBlocks.Inbox.EntityFrameworkCore.csproj", "{1F408F5A-F582-41E0-8929-72BC507212DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Inbox.PostgreSql", "src\BuildingBlocks\Inbox\BuildingBlocks.Inbox.PostgreSql\BuildingBlocks.Inbox.PostgreSql.csproj", "{EE0DE94F-2363-4A6E-AAF7-E98FC3FEFF72}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +58,10 @@ Global
 		{1E5A2AC4-0263-44D7-9E91-E47A98393AD9} = {72DA2F64-2A05-441D-8966-A86EA5B6FE99}
 		{2432EAF4-4D85-4D68-A2D8-885515E32568} = {72DA2F64-2A05-441D-8966-A86EA5B6FE99}
 		{4312D94F-8526-4CC0-9F20-45BA0174F877} = {72DA2F64-2A05-441D-8966-A86EA5B6FE99}
+		{5D3EA92A-905A-419C-8B6E-AC7BFD2F536F} = {13D3CD5F-3DB0-44AD-AFAD-F98E2B648839}
+		{ABE70113-AF3A-457B-AF68-753678AF1F6D} = {5D3EA92A-905A-419C-8B6E-AC7BFD2F536F}
+		{1F408F5A-F582-41E0-8929-72BC507212DB} = {5D3EA92A-905A-419C-8B6E-AC7BFD2F536F}
+		{EE0DE94F-2363-4A6E-AAF7-E98FC3FEFF72} = {5D3EA92A-905A-419C-8B6E-AC7BFD2F536F}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{6008E426-7FBA-48DC-B5FA-8A48B48625EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -84,5 +96,17 @@ Global
 		{4312D94F-8526-4CC0-9F20-45BA0174F877}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4312D94F-8526-4CC0-9F20-45BA0174F877}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4312D94F-8526-4CC0-9F20-45BA0174F877}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABE70113-AF3A-457B-AF68-753678AF1F6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABE70113-AF3A-457B-AF68-753678AF1F6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABE70113-AF3A-457B-AF68-753678AF1F6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABE70113-AF3A-457B-AF68-753678AF1F6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F408F5A-F582-41E0-8929-72BC507212DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F408F5A-F582-41E0-8929-72BC507212DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F408F5A-F582-41E0-8929-72BC507212DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F408F5A-F582-41E0-8929-72BC507212DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE0DE94F-2363-4A6E-AAF7-E98FC3FEFF72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE0DE94F-2363-4A6E-AAF7-E98FC3FEFF72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE0DE94F-2363-4A6E-AAF7-E98FC3FEFF72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE0DE94F-2363-4A6E-AAF7-E98FC3FEFF72}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -2,9 +2,9 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using BuildingBlocks.Messaging.Abstractions;
 
-namespace BuildingBlocks.Outbox.Abstractions;
+namespace BuildingBlocks.Inbox.PostgreSql;
 
-public static class OutboxEventTypeResolver
+public static class InboxEventTypeResolver
 {
     private static readonly Lazy<Dictionary<string, Type>> AllEventTypes = new(() =>
     {
@@ -31,10 +31,9 @@ public static class OutboxEventTypeResolver
 
     public static Type? GetEventType(string eventName)
     {
-        return NameToTypeMap.GetOrAdd(eventName, name => 
-        {
-            return AllEventTypes.Value.GetValueOrDefault(name);
-        });
+        return NameToTypeMap.GetOrAdd(
+            eventName,
+            name => AllEventTypes.Value.GetValueOrDefault(name));
     }
 
     private static IEnumerable<Type> GetAllTypes()

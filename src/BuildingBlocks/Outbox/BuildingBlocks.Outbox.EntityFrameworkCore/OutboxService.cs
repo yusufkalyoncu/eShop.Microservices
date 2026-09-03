@@ -1,4 +1,5 @@
 using System.Text.Json;
+using BuildingBlocks.Messaging.Abstractions;
 using BuildingBlocks.Outbox.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +9,7 @@ public sealed class OutboxService<TContext>(TContext dbContext) : IOutboxService
     where TContext : DbContext
 {
     public async Task AddAsync<T>(T message, string? partitionKey = null, CancellationToken cancellationToken = default) 
-        where T : class, IOutboxEvent
+        where T : class, IIntegrationEvent
     {
         var runtimeType = message.GetType();
 
