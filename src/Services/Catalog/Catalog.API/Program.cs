@@ -1,5 +1,5 @@
 using BuildingBlocks.Application;
-using BuildingBlocks.Web;
+using BuildingBlocks.Web.Endpoints;
 using Catalog.API.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 

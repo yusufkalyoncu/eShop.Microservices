@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace BuildingBlocks.Web;
+namespace BuildingBlocks.Web.Endpoints;
 
 public static class EndpointExtensions
 {

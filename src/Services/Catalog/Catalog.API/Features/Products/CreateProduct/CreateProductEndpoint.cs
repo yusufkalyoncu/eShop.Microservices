@@ -1,5 +1,5 @@
 using BuildingBlocks.Core.CQRS;
-using BuildingBlocks.Web;
+using BuildingBlocks.Web.Endpoints;
 
 namespace Catalog.API.Features.Products.CreateProduct;
 

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Routing;
 
-namespace BuildingBlocks.Web;
+namespace BuildingBlocks.Web.Endpoints;
 
 public interface IEndpoint
 {
