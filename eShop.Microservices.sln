@@ -46,6 +46,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Catalog", "Catalog", "{47B7
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catalog.API", "src\Services\Catalog\Catalog.API\Catalog.API.csproj", "{E3CDC9AA-D6D0-41AF-A258-7FD263F83582}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Persistence.PostgreSql", "src\BuildingBlocks\Persistence\BuildingBlocks.Persistence.PostgreSql\BuildingBlocks.Persistence.PostgreSql.csproj", "{2FA5CF21-3520-4513-B9B1-F5E0517088E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +76,7 @@ Global
 		{DF1D6293-34B3-4597-903A-E841669FD8E4} = {CA925EA8-292C-4F60-8307-8CB730218F1F}
 		{47B79EFD-BE1A-485E-A84F-08BFBD4DA8A1} = {DF1D6293-34B3-4597-903A-E841669FD8E4}
 		{E3CDC9AA-D6D0-41AF-A258-7FD263F83582} = {47B79EFD-BE1A-485E-A84F-08BFBD4DA8A1}
+		{2FA5CF21-3520-4513-B9B1-F5E0517088E1} = {34AA5951-96B7-4BC8-A39C-9B44BCF97339}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{6008E426-7FBA-48DC-B5FA-8A48B48625EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -128,5 +131,9 @@ Global
 		{E3CDC9AA-D6D0-41AF-A258-7FD263F83582}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3CDC9AA-D6D0-41AF-A258-7FD263F83582}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3CDC9AA-D6D0-41AF-A258-7FD263F83582}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FA5CF21-3520-4513-B9B1-F5E0517088E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FA5CF21-3520-4513-B9B1-F5E0517088E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FA5CF21-3520-4513-B9B1-F5E0517088E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FA5CF21-3520-4513-B9B1-F5E0517088E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
