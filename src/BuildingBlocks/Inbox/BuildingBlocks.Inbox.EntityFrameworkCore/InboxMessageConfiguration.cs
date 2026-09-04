@@ -8,7 +8,7 @@ public class InboxMessageConfiguration : IEntityTypeConfiguration<InboxMessage>
 {
     public void Configure(EntityTypeBuilder<InboxMessage> builder)
     {
-        builder.ToTable("inbox_messages");
+        builder.ToTable("inbox_messages", "messaging");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedNever();
         builder.Property(x => x.Type).HasMaxLength(1000).IsRequired();

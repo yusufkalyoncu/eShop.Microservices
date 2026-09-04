@@ -8,6 +8,8 @@ public class OutboxMessageConfiguration : IEntityTypeConfiguration<OutboxMessage
 {
     public virtual void Configure(EntityTypeBuilder<OutboxMessage> builder)
     {
+        builder.ToTable("outbox_messages", "messaging");
+        
         builder.HasKey(x => x.Id);
         
         builder.Property(x => x.Type).HasMaxLength(1000).IsRequired();
