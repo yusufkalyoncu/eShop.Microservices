@@ -18,6 +18,7 @@ public sealed class PostgresDbContextOptions
     public int MaxRetryCount { get; init; } = 3;
     public TimeSpan MaxRetryDelay { get; init; } = TimeSpan.FromSeconds(5);
     public bool UseSnakeCaseNamingConvention { get; init; } = true;
+    public bool EnableDynamicJson { get; init; } = true;
 }
 
 public class PostgresDbContextOptionsValidator : AbstractValidator<PostgresDbContextOptions>
