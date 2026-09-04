@@ -1,13 +1,12 @@
 using BuildingBlocks.Application;
 using BuildingBlocks.Web.Endpoints;
 using Catalog.API.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+using BuildingBlocks.Persistence.PostgreSql;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add Database
-builder.Services.AddDbContext<CatalogDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
+builder.Services.AddPostgresDbContext<CatalogDbContext>();
 
 // Add CQRS Handlers and Pipeline Behaviors (Logging, Validation) automatically using Scrutor
 builder.Services.AddApplicationHandlers(typeof(Program).Assembly);
