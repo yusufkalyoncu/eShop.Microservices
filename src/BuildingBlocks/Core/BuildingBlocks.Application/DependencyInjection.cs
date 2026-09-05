@@ -43,6 +43,11 @@ public static class DependencyInjection
 
         services.TryDecorate(typeof(IQueryHandler<,>), typeof(LoggingDecorator.QueryHandler<,>));
 
+        // Decorate Handlers with Caching pipeline
+        services.TryDecorate(typeof(ICommandHandler<>), typeof(CachingDecorator.CommandBaseHandler<>));
+        services.TryDecorate(typeof(ICommandHandler<,>), typeof(CachingDecorator.CommandHandler<,>));
+        services.TryDecorate(typeof(IQueryHandler<,>), typeof(CachingDecorator.QueryHandler<,>));
+
         return services;
     }
 }
