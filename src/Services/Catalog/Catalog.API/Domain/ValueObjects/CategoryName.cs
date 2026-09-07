@@ -1,3 +1,6 @@
+using BuildingBlocks.Core.Domain.Exceptions;
+using Catalog.API.Domain.Errors;
+
 namespace Catalog.API.Domain.ValueObjects;
 
 public sealed record CategoryName
@@ -13,17 +16,17 @@ public sealed record CategoryName
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            throw new ArgumentException("Category name cannot be empty.", nameof(value));
+            throw new DomainException(CatalogErrors.CategoryName.Empty);
         }
 
         if (value.Length < 3)
         {
-            throw new ArgumentException("Category name must be at least 3 characters long.", nameof(value));
+            throw new DomainException(CatalogErrors.CategoryName.TooShort);
         }
 
         if (value.Length > 50)
         {
-            throw new ArgumentException("Category name cannot exceed 50 characters.", nameof(value));
+            throw new DomainException(CatalogErrors.CategoryName.TooLong);
         }
 
         return new CategoryName(value);

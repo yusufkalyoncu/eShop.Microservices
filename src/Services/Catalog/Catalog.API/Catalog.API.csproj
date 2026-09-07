@@ -19,6 +19,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <InternalsVisibleTo Include="Catalog.UnitTests" />
+    </ItemGroup>
+
+    <ItemGroup>
       <Folder Include="Infrastructure\Data\Migrations\" />
     </ItemGroup>
 

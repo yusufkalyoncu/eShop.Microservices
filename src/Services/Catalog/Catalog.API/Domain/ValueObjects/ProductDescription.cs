@@ -1,3 +1,6 @@
+using BuildingBlocks.Core.Domain.Exceptions;
+using Catalog.API.Domain.Errors;
+
 namespace Catalog.API.Domain.ValueObjects;
 
 public sealed record ProductDescription
@@ -13,12 +16,12 @@ public sealed record ProductDescription
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            throw new ArgumentException("Product description cannot be empty.", nameof(value));
+            throw new DomainException(CatalogErrors.ProductDescription.Empty);
         }
 
         if (value.Length > 500)
         {
-            throw new ArgumentException("Product description cannot exceed 500 characters.", nameof(value));
+            throw new DomainException(CatalogErrors.ProductDescription.TooLong);
         }
 
         return new ProductDescription(value);

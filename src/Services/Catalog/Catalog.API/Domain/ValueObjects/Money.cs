@@ -1,3 +1,6 @@
+using BuildingBlocks.Core.Domain.Exceptions;
+using Catalog.API.Domain.Errors;
+
 namespace Catalog.API.Domain.ValueObjects;
 
 public sealed record Money
@@ -15,12 +18,12 @@ public sealed record Money
     {
         if (amount < 0)
         {
-            throw new ArgumentException("Amount cannot be negative.", nameof(amount));
+            throw new DomainException(CatalogErrors.Money.NegativeAmount);
         }
 
         if (string.IsNullOrWhiteSpace(currency))
         {
-            throw new ArgumentException("Currency cannot be empty.", nameof(currency));
+            throw new DomainException(CatalogErrors.Money.EmptyCurrency);
         }
 
         return new Money(amount, currency);

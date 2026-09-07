@@ -1,3 +1,6 @@
+using BuildingBlocks.Core.Domain.Exceptions;
+using Catalog.API.Domain.Errors;
+
 namespace Catalog.API.Domain.ValueObjects;
 
 public sealed record CategoryDescription
@@ -13,12 +16,12 @@ public sealed record CategoryDescription
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            throw new ArgumentException("Category description cannot be empty.", nameof(value));
+            throw new DomainException(CatalogErrors.CategoryDescription.Empty);
         }
 
         if (value.Length > 500)
         {
-            throw new ArgumentException("Category description cannot exceed 500 characters.", nameof(value));
+            throw new DomainException(CatalogErrors.CategoryDescription.TooLong);
         }
 
         return new CategoryDescription(value);
