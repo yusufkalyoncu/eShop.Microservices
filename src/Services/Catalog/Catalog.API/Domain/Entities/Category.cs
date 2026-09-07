@@ -1,21 +1,17 @@
 using BuildingBlocks.Core.Domain;
+using Catalog.API.Domain.ValueObjects;
 
 namespace Catalog.API.Domain.Entities;
 
 public sealed class Category : AggregateRoot<Guid>
 {
-    public string Name { get; private set; } = null!;
-    public string Description { get; private set; } = null!;
+    public CategoryName Name { get; private set; } = null!;
+    public CategoryDescription Description { get; private set; } = null!;
 
     private Category() { }
 
-    public static Category Create(string name, string description)
+    public static Category Create(CategoryName name, CategoryDescription description)
     {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            throw new ArgumentException("Category name cannot be empty.", nameof(name));
-        }
-
         return new Category
         {
             Id = Guid.NewGuid(),
@@ -24,13 +20,8 @@ public sealed class Category : AggregateRoot<Guid>
         };
     }
 
-    public void Update(string name, string description)
+    public void Update(CategoryName name, CategoryDescription description)
     {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            throw new ArgumentException("Category name cannot be empty.", nameof(name));
-        }
-
         Name = name;
         Description = description;
     }
