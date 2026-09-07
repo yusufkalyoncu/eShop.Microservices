@@ -17,4 +17,8 @@
       <PackageReference Include="Scalar.AspNetCore" Version="2.17.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\Core\BuildingBlocks.Core\BuildingBlocks.Core.csproj" />
+    </ItemGroup>
+
 </Project>

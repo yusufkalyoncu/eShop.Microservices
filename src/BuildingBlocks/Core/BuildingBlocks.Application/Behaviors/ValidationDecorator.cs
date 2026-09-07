@@ -71,6 +71,6 @@ internal static class ValidationDecorator
 
     private static ValidationError CreateValidationError(ValidationFailure[] validationFailures) =>
         new(validationFailures
-            .Select(f => Error.Validation(f.ErrorCode, field: f.PropertyName))
+            .Select(f => Error.Validation(f.ErrorCode, f.ErrorMessage, field: f.PropertyName))
             .ToArray());
 }

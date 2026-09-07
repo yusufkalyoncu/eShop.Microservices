@@ -26,10 +26,11 @@ internal static class LoggingDecorator
             }
             else
             {
-                logger.LogError("Failed command {Command} with error ({StatusCode}): {ErrorMessage}",
+                logger.LogError("Failed command {Command} with error ({StatusCode}): {ErrorCode} - {ErrorMessage}",
                     commandName,
                     result.Error.Type,
-                    result.Error.ErrorCode);
+                    result.Error.Code,
+                    result.Error.Description);
             }
 
             return result;
@@ -56,10 +57,11 @@ internal static class LoggingDecorator
             }
             else
             {
-                logger.LogError("Failed command {Command} with error ({StatusCode}): {ErrorMessage}",
+                logger.LogError("Failed command {Command} with error ({StatusCode}): {ErrorCode} - {ErrorMessage}",
                     commandName,
                     result.Error.Type,
-                    result.Error.ErrorCode);
+                    result.Error.Code,
+                    result.Error.Description);
             }
 
             return result;
@@ -86,10 +88,11 @@ internal static class LoggingDecorator
             }
             else
             {
-                logger.LogError("Failed query {Query} with error ({StatusCode}): {ErrorMessage}",
+                logger.LogError("Failed query {Query} with error ({StatusCode}): {ErrorCode} - {ErrorMessage}",
                     queryName,
                     result.Error.Type,
-                    result.Error.ErrorCode);
+                    result.Error.Code,
+                    result.Error.Description);
             }
 
             return result;
