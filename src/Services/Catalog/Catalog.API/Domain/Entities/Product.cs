@@ -27,4 +27,10 @@ public sealed class Product : AggregateRoot<Guid>
 
     public void UpdatePrice(Money newPrice) => Price = newPrice;
     public void ChangeCategory(Guid newCategoryId) => CategoryId = newCategoryId;
+
+    public void UpdateDetails(ProductName name, ProductDescription description)
+    {
+        Name = name;
+        Description = description;
+    }
 }
