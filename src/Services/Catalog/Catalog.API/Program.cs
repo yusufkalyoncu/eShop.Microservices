@@ -4,6 +4,7 @@ using Catalog.API.Infrastructure.Data;
 using BuildingBlocks.Persistence.PostgreSql;
 using BuildingBlocks.Web.OpenApi;
 using BuildingBlocks.Web.Exceptions;
+using BuildingBlocks.Persistence.EntityFrameworkCore.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,9 @@ builder.Services.AddEndpoints(typeof(Program).Assembly);
 builder.Services.AddDocs();
 
 var app = builder.Build();
+
+// Automatically apply EF Core migrations
+app.Services.ApplyDatabaseMigrations<CatalogDbContext>();
 
 // Use Global Exception Handler
 app.UseGlobalExceptionHandler();

@@ -1,4 +1,5 @@
 using System.Reflection;
+using Gateway.API.Extensions;
 using BuildingBlocks.Core.Options;
 using Gateway.API.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -39,7 +40,13 @@ var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Map YARP Endpoints
+// Add YARP Endpoints
 app.MapReverseProxy();
+
+// Add Scalar Aggregated Docs
+app.UseGatewayDocs(new Dictionary<string, string>
+{
+    { "catalog", "/catalog-api/openapi/v1.json" }
+});
 
 app.Run();
