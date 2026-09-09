@@ -28,10 +28,13 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - Identity__Authority=http://keycloak:8080/realms/eShopRealm
       - ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address=http://catalog.api:8080
+      - ReverseProxy__Clusters__basket-cluster__Destinations__destination1__Address=http://basket.api:8080
     ports:
       - "5050:8080"
     depends_on:
       catalog.api:
+        condition: service_started
+      basket.api:
         condition: service_started
       keycloak:
         condition: service_healthy
@@ -77,6 +80,26 @@ services:
       timeout: 5s
       retries: 10
       start_period: 30s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  basket.api:
+    image: eshop-basket-api
+    container_name: eshop-basket-api
+    build:
+      context: .
+      dockerfile: src/Services/Basket/Basket.API/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Marten__Username=postgres
+      - Marten__Password=postgrespassword
+      - Marten__Host=postgres
+      - Marten__Port=5432
+      - Marten__Database=basketdb
+    ports:
+      - "8081:8080"
     depends_on:
       postgres:
         condition: service_healthy

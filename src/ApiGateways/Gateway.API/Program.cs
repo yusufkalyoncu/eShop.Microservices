@@ -46,7 +46,8 @@ app.MapReverseProxy();
 // Add Scalar Aggregated Docs
 app.UseGatewayDocs(new Dictionary<string, string>
 {
-    { "catalog", "/catalog-api/openapi/v1.json" }
+    { "catalog", "/catalog-api/openapi/v1.json" },
+    { "basket", "/basket-api/openapi/v1.json" }
 });
 
 app.Run();

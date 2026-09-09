@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\BuildingBlocks\WebApi\BuildingBlocks.Web\BuildingBlocks.Web.csproj" />
+      <ProjectReference Include="..\..\..\BuildingBlocks\Core\BuildingBlocks.Application\BuildingBlocks.Application.csproj" />
+      <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\BuildingBlocks.Persistence.Marten\BuildingBlocks.Persistence.Marten.csproj" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+</Project>
