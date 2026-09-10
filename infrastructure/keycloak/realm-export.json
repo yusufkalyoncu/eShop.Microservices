@@ -1,0 +1,40 @@
+{
+  "id": "eShopRealm",
+  "realm": "eShopRealm",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "eshop-gateway-client",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "redirectUris": [
+        "*"
+      ],
+      "webOrigins": [
+        "*"
+      ]
+    },
+    {
+      "clientId": "identity-api-client",
+      "enabled": true,
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "secret": "identity-api-secret"
+    }
+  ],
+  "users": [
+    {
+      "username": "service-account-identity-api-client",
+      "enabled": true,
+      "serviceAccountClientId": "identity-api-client",
+      "clientRoles": {
+        "realm-management": [
+          "manage-users",
+          "view-users"
+        ]
+      }
+    }
+  ]
+}
