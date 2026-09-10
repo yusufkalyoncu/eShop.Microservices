@@ -98,11 +98,14 @@ services:
       - Marten__Host=postgres
       - Marten__Port=5432
       - Marten__Database=basketdb
+      - GrpcSettings__CatalogUrl=http://catalog.api:8081
     ports:
       - "8081:8080"
     depends_on:
       postgres:
         condition: service_healthy
+      catalog.api:
+        condition: service_started
     restart: unless-stopped
 
 volumes:

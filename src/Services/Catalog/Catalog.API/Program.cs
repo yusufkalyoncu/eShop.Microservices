@@ -1,12 +1,19 @@
 using BuildingBlocks.Application;
+using BuildingBlocks.Grpc.Interceptors;
 using BuildingBlocks.Web.Endpoints;
 using Catalog.API.Infrastructure.Data;
 using BuildingBlocks.Persistence.PostgreSql;
 using BuildingBlocks.Web.OpenApi;
 using BuildingBlocks.Web.Exceptions;
 using BuildingBlocks.Persistence.EntityFrameworkCore.Extensions;
+using Catalog.API.Features.Grpc;
+
+using BuildingBlocks.Grpc.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Explicitly configure Kestrel to support HTTP/1.1 on 8080 and HTTP/2 (H2C) on 8081
+builder.WebHost.ConfigureGrpcPorts();
 
 // Add Database
 builder.Services.AddPostgresDbContext<CatalogDbContext>();
@@ -23,6 +30,12 @@ builder.Services.AddGlobalExceptionHandler();
 // Add Endpoints via our new extension
 builder.Services.AddEndpoints(typeof(Program).Assembly);
 
+// Add gRPC and Global Exception Interceptor
+builder.Services.AddGrpc(options =>
+{
+    options.Interceptors.Add<GlobalExceptionInterceptor>();
+});
+
 // Add API Versioning and OpenAPI
 builder.Services.AddDocs();
 
@@ -36,6 +49,9 @@ app.UseGlobalExceptionHandler();
 
 // Map the endpoints automatically
 app.MapEndpoints();
+
+// Map gRPC Services
+app.MapGrpcService<CatalogGrpcService>();
 
 // Map OpenAPI endpoints and Scalar UI
 if (app.Environment.IsDevelopment())

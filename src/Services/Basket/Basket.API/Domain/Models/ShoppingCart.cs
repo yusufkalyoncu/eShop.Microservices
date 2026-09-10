@@ -26,4 +26,18 @@ public class ShoppingCart : Entity<string>
 
     // Default constructor for deserialization (Marten)
     public ShoppingCart() { }
+
+    public void AddItem(Guid productId, string productName, int quantity, decimal price)
+    {
+        var existingItem = Items.FirstOrDefault(i => i.ProductId == productId);
+        if (existingItem != null)
+        {
+            existingItem.UpdateQuantity(existingItem.Quantity + quantity);
+            // Assuming price could change, we might want to update it or ignore. Usually, we take the latest price.
+        }
+        else
+        {
+            Items.Add(new ShoppingCartItem(productId, productName, quantity, price));
+        }
+    }
 }

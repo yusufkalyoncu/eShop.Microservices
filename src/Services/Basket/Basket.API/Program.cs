@@ -3,11 +3,24 @@ using BuildingBlocks.Persistence.Marten;
 using BuildingBlocks.Web.Endpoints;
 using BuildingBlocks.Web.Exceptions;
 using BuildingBlocks.Web.OpenApi;
+using Microsoft.Extensions.Options;
+using Basket.API.Options;
+using BuildingBlocks.Core.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add App Options
+builder.Services.AddAppOptions(builder.Configuration, typeof(Program).Assembly);
+
 // Add Marten Document Database
 builder.Services.AddMartenDbContext();
+
+// Register gRPC Client for Catalog API
+builder.Services.AddGrpcClient<Catalog.Grpc.CatalogGrpcService.CatalogGrpcServiceClient>((provider, options) =>
+{
+    var grpcOptions = provider.GetRequiredService<IOptions<GrpcOptions>>().Value;
+    options.Address = new Uri(grpcOptions.CatalogUrl);
+});
 
 // Add CQRS Handlers and Pipeline Behaviors (Logging, Validation) automatically using Scrutor
 builder.Services.AddApplicationHandlers(typeof(Program).Assembly);
