@@ -3,6 +3,7 @@ using BuildingBlocks.Core.Caching;
 using BuildingBlocks.Core.CQRS;
 using BuildingBlocks.Core.Results;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace BuildingBlocks.Application.Behaviors;
@@ -11,7 +12,7 @@ internal static class CachingDecorator
 {
     internal sealed class QueryHandler<TQuery, TResponse>(
         IQueryHandler<TQuery, TResponse> innerHandler,
-        IDistributedCache cache,
+        IServiceProvider serviceProvider,
         ILogger<QueryHandler<TQuery, TResponse>> logger)
         : IQueryHandler<TQuery, TResponse>
         where TQuery : IQuery<TResponse>
@@ -20,6 +21,13 @@ internal static class CachingDecorator
         {
             if ((object)query is not ICacheableQuery cacheableQuery)
             {
+                return await innerHandler.Handle(query, cancellationToken);
+            }
+
+            var cache = serviceProvider.GetService<IDistributedCache>();
+            if (cache is null)
+            {
+                logger.LogWarning("Query {QueryName} implements ICacheableQuery but no IDistributedCache is registered.", typeof(TQuery).Name);
                 return await innerHandler.Handle(query, cancellationToken);
             }
 
@@ -55,7 +63,7 @@ internal static class CachingDecorator
 
     internal sealed class CommandHandler<TCommand, TResponse>(
         ICommandHandler<TCommand, TResponse> innerHandler,
-        IDistributedCache cache,
+        IServiceProvider serviceProvider,
         ILogger<CommandHandler<TCommand, TResponse>> logger)
         : ICommandHandler<TCommand, TResponse>
         where TCommand : ICommand<TResponse>
@@ -66,10 +74,14 @@ internal static class CachingDecorator
 
             if (result.IsSuccess && (object)command is ICacheInvalidatorCommand invalidatorCommand)
             {
-                foreach (var cacheKey in invalidatorCommand.CacheKeys)
+                var cache = serviceProvider.GetService<IDistributedCache>();
+                if (cache is not null)
                 {
-                    await cache.RemoveAsync(cacheKey, cancellationToken);
-                    logger.LogInformation("Removed from Cache -> '{CacheKey}'", cacheKey);
+                    foreach (var cacheKey in invalidatorCommand.CacheKeys)
+                    {
+                        await cache.RemoveAsync(cacheKey, cancellationToken);
+                        logger.LogInformation("Removed from Cache -> '{CacheKey}'", cacheKey);
+                    }
                 }
             }
 
@@ -79,7 +91,7 @@ internal static class CachingDecorator
 
     internal sealed class CommandBaseHandler<TCommand>(
         ICommandHandler<TCommand> innerHandler,
-        IDistributedCache cache,
+        IServiceProvider serviceProvider,
         ILogger<CommandBaseHandler<TCommand>> logger)
         : ICommandHandler<TCommand>
         where TCommand : ICommand
@@ -90,10 +102,14 @@ internal static class CachingDecorator
 
             if (result.IsSuccess && (object)command is ICacheInvalidatorCommand invalidatorCommand)
             {
-                foreach (var cacheKey in invalidatorCommand.CacheKeys)
+                var cache = serviceProvider.GetService<IDistributedCache>();
+                if (cache is not null)
                 {
-                    await cache.RemoveAsync(cacheKey, cancellationToken);
-                    logger.LogInformation("Removed from Cache -> '{CacheKey}'", cacheKey);
+                    foreach (var cacheKey in invalidatorCommand.CacheKeys)
+                    {
+                        await cache.RemoveAsync(cacheKey, cancellationToken);
+                        logger.LogInformation("Removed from Cache -> '{CacheKey}'", cacheKey);
+                    }
                 }
             }
 

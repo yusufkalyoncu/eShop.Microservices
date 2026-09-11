@@ -16,9 +16,6 @@ builder.Services.AddAppOptions(builder.Configuration, typeof(Program).Assembly);
 // Add CQRS Handlers and Pipeline Behaviors (Logging, Validation) automatically using Scrutor
 builder.Services.AddApplicationHandlers(typeof(Program).Assembly);
 
-// Add Default Distributed Cache (In-Memory) for CachingDecorator
-builder.Services.AddDistributedMemoryCache();
-
 // Add Global Exception Handler
 builder.Services.AddGlobalExceptionHandler();
 
