@@ -1,11 +1,11 @@
 using BuildingBlocks.Core.Domain;
 using BuildingBlocks.Core.DomainEvents;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BuildingBlocks.Persistence.EntityFrameworkCore.Interceptors;
 
-public class DomainEventDispatcherInterceptor(
-    IDomainEventsDispatcher domainEventsDispatcher) : SaveChangesInterceptor
+public class DomainEventDispatcherInterceptor(IServiceProvider serviceProvider) : SaveChangesInterceptor
 {
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
@@ -28,7 +28,11 @@ public class DomainEventDispatcherInterceptor(
 
         aggregateRoots.ForEach(x => x.ClearDomainEvents());
 
-        await domainEventsDispatcher.DispatchAsync(domainEvents, cancellationToken);
+        var domainEventsDispatcher = serviceProvider.GetService<IDomainEventsDispatcher>();
+        if (domainEventsDispatcher is not null)
+        {
+            await domainEventsDispatcher.DispatchAsync(domainEvents, cancellationToken);
+        }
 
         return result;
     }
