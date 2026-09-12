@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 namespace BuildingBlocks.Inbox.PostgreSql;
 
 internal sealed class InboxBackgroundService<TDbContext>(
+    IInboxSignal signal,
     IServiceScopeFactory scopeFactory, 
     IOptions<InboxOptions> options, 
     ILogger<InboxBackgroundService<TDbContext>> logger) 
@@ -29,7 +30,7 @@ internal sealed class InboxBackgroundService<TDbContext>(
 
                 if (result.Claimed < _options.BatchSize)
                 {
-                    await Task.Delay(_options.PollTimeout, stoppingToken);
+                    await signal.WaitForSignalAsync(stoppingToken);
                 }
             }
             catch (Exception ex)

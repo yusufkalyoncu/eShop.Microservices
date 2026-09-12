@@ -17,6 +17,8 @@ public static class DependencyInjection
             .ValidateFluentValidation()
             .ValidateOnStart();
 
+        services.AddSingleton<IInboxSignal, InboxSignal>();
+        services.AddScoped<InboxInsertInterceptor>();
         services.AddScoped<IInboxService, InboxService<TDbContext>>();
         return services;
     }
