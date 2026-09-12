@@ -9,6 +9,7 @@ using BuildingBlocks.Persistence.EntityFrameworkCore.Extensions;
 using Catalog.API.Features.Grpc;
 
 using BuildingBlocks.Grpc.Extensions;
+using BuildingBlocks.Web.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,9 @@ builder.Services.AddDistributedMemoryCache();
 
 // Add Global Exception Handler
 builder.Services.AddGlobalExceptionHandler();
+
+// Add JWT Authentication
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 // Add Endpoints via our new extension
 builder.Services.AddEndpoints(typeof(Program).Assembly);
@@ -49,6 +53,9 @@ app.UseGlobalExceptionHandler();
 
 // Map the endpoints automatically
 app.MapEndpoints();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Map gRPC Services
 app.MapGrpcService<CatalogGrpcService>();

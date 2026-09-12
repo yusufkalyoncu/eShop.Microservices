@@ -3,9 +3,8 @@ using BuildingBlocks.Core.Options;
 using BuildingBlocks.Web.Endpoints;
 using BuildingBlocks.Web.Exceptions;
 using BuildingBlocks.Web.OpenApi;
-using Identity.API.Options;
+using BuildingBlocks.Web.Security;
 using Keycloak.Net;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,19 +24,8 @@ builder.Services.AddEndpoints(typeof(Program).Assembly);
 // Add API Versioning and OpenAPI
 builder.Services.AddDocs();
 
-// Add Authentication using Options Pattern
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        var identityOptions = builder.Configuration.GetSection(IdentityOptions.SectionName).Get<IdentityOptions>();
-        if (identityOptions != null)
-        {
-            options.Authority = identityOptions.Authority;
-            options.Audience = identityOptions.Audience;
-            options.RequireHttpsMetadata = false;
-        }
-    });
-builder.Services.AddAuthorization();
+// Add Authentication using centralized extension
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 // HttpClient for Keycloak Token Endpoint
 builder.Services.AddHttpClient("Keycloak", (provider, client) =>

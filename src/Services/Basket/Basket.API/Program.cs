@@ -3,6 +3,7 @@ using BuildingBlocks.Persistence.Marten;
 using BuildingBlocks.Web.Endpoints;
 using BuildingBlocks.Web.Exceptions;
 using BuildingBlocks.Web.OpenApi;
+using BuildingBlocks.Web.Security;
 using Microsoft.Extensions.Options;
 using Basket.API.Options;
 using BuildingBlocks.Core.Options;
@@ -37,10 +38,17 @@ builder.Services.AddEndpoints(typeof(Program).Assembly);
 // Add API Versioning and OpenAPI
 builder.Services.AddDocs();
 
+// Add Authentication and Current User
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddCurrentUser();
+
 var app = builder.Build();
 
 // Use Global Exception Handler
 app.UseGlobalExceptionHandler();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Map the endpoints automatically
 app.MapEndpoints();

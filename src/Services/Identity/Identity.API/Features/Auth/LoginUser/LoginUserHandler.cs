@@ -2,6 +2,7 @@ using BuildingBlocks.Core.CQRS;
 using BuildingBlocks.Core.Results;
 using Identity.API.Domain.Errors;
 using Microsoft.Extensions.Options;
+using BuildingBlocks.Web.Security;
 using Identity.API.Options;
 
 namespace Identity.API.Features.Auth.LoginUser;
@@ -28,7 +29,19 @@ internal sealed class LoginUserHandler(
         if (!response.IsSuccessStatusCode)
         {
             var error = await response.Content.ReadAsStringAsync(cancellationToken);
-            return Result.Failure<LoginResponse>(IdentityErrors.Auth.LoginFailed(error));
+            try
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(error);
+                if (doc.RootElement.TryGetProperty("error", out var errorProp) && errorProp.GetString() == "invalid_grant")
+                {
+                    return Result.Failure<LoginResponse>(IdentityErrors.Auth.InvalidCredentials);
+                }
+            }
+            catch
+            {
+                // Ignored, fallback to unknown error
+            }
+            return Result.Failure<LoginResponse>(IdentityErrors.Auth.UnknownError(error));
         }
 
         var tokenResponse = await response.Content.ReadFromJsonAsync<LoginResponse>(cancellationToken: cancellationToken);

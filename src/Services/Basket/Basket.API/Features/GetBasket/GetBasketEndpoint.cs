@@ -1,6 +1,7 @@
 using BuildingBlocks.Core.CQRS;
 using BuildingBlocks.Web.Endpoints;
 using BuildingBlocks.Web.Extensions;
+using BuildingBlocks.Web.Security;
 
 namespace Basket.API.Features.GetBasket;
 
@@ -12,8 +13,9 @@ public sealed class GetBasketEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("/basket/{userName}", async (string userName, IQueryHandler<GetBasketQuery, GetBasketResult> handler, CancellationToken ct) =>
+        app.MapGet("/basket", async (ICurrentUser currentUser, IQueryHandler<GetBasketQuery, GetBasketResult> handler, CancellationToken ct) =>
         {
+            var userName = currentUser.Name ?? throw new UnauthorizedAccessException("User is not authenticated.");
             var result = await handler.Handle(new GetBasketQuery(userName), ct);
 
             return result.Match(success =>
@@ -29,7 +31,9 @@ public sealed class GetBasketEndpoint : IEndpoint
         .WithName("GetBasket")
         .Produces<GetBasketResponse>()
         .ProducesProblem(StatusCodes.Status400BadRequest)
-        .WithSummary("Get Basket By Username")
-        .WithDescription("Get Basket By Username");
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .WithSummary("Get Basket for Current User")
+        .WithDescription("Get Basket for Current User")
+        .RequireAuthorization();
     }
 }

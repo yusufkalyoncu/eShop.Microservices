@@ -1,6 +1,7 @@
 using BuildingBlocks.Core.CQRS;
 using BuildingBlocks.Web.Endpoints;
 using BuildingBlocks.Web.Extensions;
+using BuildingBlocks.Web.Security;
 
 namespace Catalog.API.Features.Categories.DeleteCategory;
 
@@ -17,6 +18,9 @@ public sealed class DeleteCategoryEndpoint : IEndpoint
         .WithSummary("Deletes a category")
         .WithDescription("Deletes a category by its ID")
         .Produces(StatusCodes.Status204NoContent)
-        .ProducesProblem(StatusCodes.Status404NotFound);
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status403Forbidden)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .RequireRoles(Roles.Admin);
     }
 }

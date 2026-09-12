@@ -27,6 +27,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Identity__Authority=http://keycloak:8080/realms/eShopRealm
+      - Identity__Audience=eshop-gateway-client
+      - Identity__ValidIssuers__0=http://keycloak:8080/realms/eShopRealm
+      - Identity__ValidIssuers__1=http://localhost:9090/realms/eShopRealm
       - ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address=http://catalog.api:8080
       - ReverseProxy__Clusters__basket-cluster__Destinations__destination1__Address=http://basket.api:8080
       - ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address=http://identity.api:8080
@@ -54,6 +57,10 @@ services:
       - Postgres__Username=postgres
       - Postgres__Password=postgrespassword
       - Postgres__Database=catalogdb
+      - Identity__Authority=http://keycloak:8080/realms/eShopRealm
+      - Identity__Audience=eshop-gateway-client
+      - Identity__ValidIssuers__0=http://keycloak:8080/realms/eShopRealm
+      - Identity__ValidIssuers__1=http://localhost:9090/realms/eShopRealm
     ports:
       - "8080:8080"
     depends_on:
@@ -102,6 +109,10 @@ services:
       - Marten__Port=5432
       - Marten__Database=basketdb
       - GrpcSettings__CatalogUrl=http://catalog.api:8081
+      - Identity__Authority=http://keycloak:8080/realms/eShopRealm
+      - Identity__Audience=eshop-gateway-client
+      - Identity__ValidIssuers__0=http://keycloak:8080/realms/eShopRealm
+      - Identity__ValidIssuers__1=http://localhost:9090/realms/eShopRealm
     ports:
       - "8081:8080"
     depends_on:

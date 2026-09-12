@@ -10,16 +10,19 @@ public sealed class DeleteBasketEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapDelete("/basket/{userName}", async (string userName, ICommandHandler<DeleteBasketCommand, DeleteBasketResult> handler, CancellationToken ct) =>
+        app.MapDelete("/basket", async (BuildingBlocks.Web.Security.ICurrentUser currentUser, ICommandHandler<DeleteBasketCommand, DeleteBasketResult> handler, CancellationToken ct) =>
         {
+            var userName = currentUser.Name ?? throw new UnauthorizedAccessException("User is not authenticated.");
             var result = await handler.Handle(new DeleteBasketCommand(userName), ct);
-            
-            return result.Match(success => new DeleteBasketResponse(success.IsSuccess));
+
+            return result.Match(success => Results.Ok(new DeleteBasketResponse(success.IsSuccess)));
         })
         .WithName("DeleteBasket")
         .Produces<DeleteBasketResponse>()
         .ProducesProblem(StatusCodes.Status400BadRequest)
-        .WithSummary("Delete Basket")
-        .WithDescription("Delete Basket");
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .WithSummary("Delete Basket for Current User")
+        .WithDescription("Delete Basket for Current User")
+        .RequireAuthorization();
     }
 }

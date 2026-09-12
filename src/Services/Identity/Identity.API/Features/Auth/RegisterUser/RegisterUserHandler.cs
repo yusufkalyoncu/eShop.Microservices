@@ -27,9 +27,19 @@ internal sealed class RegisterUserHandler(
             RequiredActions = Array.Empty<string>()
         };
 
-        var success = await keycloakClient.CreateUserAsync(keycloakOptions.Value.Realm, user, cancellationToken);
-        
-        if (!success)
+        try
+        {
+            var success = await keycloakClient.CreateUserAsync(keycloakOptions.Value.Realm, user, cancellationToken);
+            if (!success)
+            {
+                return Result.Failure<LoginResponse>(IdentityErrors.Auth.RegisterFailed);
+            }
+        }
+        catch (Exception ex) when (ex.Message.Contains("409") || ex.Message.Contains("Conflict"))
+        {
+            return Result.Failure<LoginResponse>(IdentityErrors.Auth.UserAlreadyExists);
+        }
+        catch (Exception)
         {
             return Result.Failure<LoginResponse>(IdentityErrors.Auth.RegisterFailed);
         }
@@ -42,6 +52,15 @@ internal sealed class RegisterUserHandler(
         {
             // Set the password explicitly as permanent
             await keycloakClient.ResetUserPasswordAsync(keycloakOptions.Value.Realm, createdUser.Id, request.Password, false, cancellationToken);
+            
+            // Assign 'user' role
+            var realmRoles = await keycloakClient.GetRolesAsync(keycloakOptions.Value.Realm, cancellationToken: cancellationToken);
+            var userRole = realmRoles.FirstOrDefault(r => r.Name == BuildingBlocks.Web.Security.Roles.User);
+            
+            if (userRole != null)
+            {
+                await keycloakClient.AddRealmRoleMappingsToUserAsync(keycloakOptions.Value.Realm, createdUser.Id, new[] { userRole }, cancellationToken);
+            }
         }
 
         // Login user to get the token
