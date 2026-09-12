@@ -13,7 +13,7 @@ public class OutboxModelCustomizer(ModelCustomizerDependencies dependencies)
 
         modelBuilder.Entity<OutboxMessage>(builder =>
         {
-            builder.ToTable("outbox_messages"); 
+            builder.ToTable("outbox_messages", "messaging");
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Type).HasMaxLength(1000).IsRequired();
             builder.Property(x => x.Content).HasColumnType("jsonb").IsRequired();

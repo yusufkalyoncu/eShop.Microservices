@@ -30,7 +30,7 @@ internal sealed class InboxProcessor<TDbContext>(
                       WITH partition_heads AS (
                           SELECT DISTINCT ON (partition_key)
                               partition_key, locked_until_utc, next_attempt_at_utc
-                          FROM inbox_messages
+                          FROM messaging.inbox_messages
                           WHERE status = 0 AND partition_key IS NOT NULL
                           ORDER BY partition_key, occurred_on_utc, id
                       ),
@@ -47,7 +47,7 @@ internal sealed class InboxProcessor<TDbContext>(
                       ),
                       candidate_batch AS (
                           SELECT id
-                          FROM inbox_messages
+                          FROM messaging.inbox_messages
                           WHERE status = 0
                             AND (locked_until_utc IS NULL OR locked_until_utc < @Now)
                             AND (next_attempt_at_utc IS NULL OR next_attempt_at_utc <= @Now)
@@ -56,7 +56,7 @@ internal sealed class InboxProcessor<TDbContext>(
                           LIMIT @BatchSize
                           FOR UPDATE SKIP LOCKED
                       )
-                      UPDATE inbox_messages m
+                      UPDATE messaging.inbox_messages m
                       SET locked_until_utc = @LockExpiration
                       FROM candidate_batch c
                       WHERE m.id = c.id
@@ -109,7 +109,7 @@ internal sealed class InboxProcessor<TDbContext>(
         {
             await using var releaseConnection = await dataSource.OpenConnectionAsync(cancellationToken);
             await releaseConnection.ExecuteAsync(
-                "UPDATE inbox_messages SET locked_until_utc = NULL WHERE id = ANY(@Ids) AND status = 0",
+                "UPDATE messaging.inbox_messages SET locked_until_utc = NULL WHERE id = ANY(@Ids) AND status = 0",
                 new { Ids = releaseQueue.ToArray() });
         }
 

@@ -27,9 +27,9 @@ internal sealed class InboxCleanupService(
                 {
                     await using var connection = await dataSource.OpenConnectionAsync(stoppingToken);
                     deletedInBatch = await connection.ExecuteAsync("""
-                        DELETE FROM inbox_messages 
+                        DELETE FROM messaging.inbox_messages 
                         WHERE id IN (
-                            SELECT id FROM inbox_messages 
+                            SELECT id FROM messaging.inbox_messages 
                             WHERE status = 1 AND processed_on_utc < @Cutoff 
                             LIMIT 10000
                         )

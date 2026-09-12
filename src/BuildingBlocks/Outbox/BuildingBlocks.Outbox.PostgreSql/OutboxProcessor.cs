@@ -49,7 +49,7 @@ internal sealed class OutboxProcessor(
                           WITH partition_heads AS (
                               SELECT DISTINCT ON (partition_key)
                                   partition_key, locked_until_utc, next_attempt_at_utc
-                              FROM outbox_messages
+                              FROM messaging.outbox_messages
                               WHERE status = 0 AND partition_key IS NOT NULL
                               ORDER BY partition_key, occurred_on_utc, id
                           ),
@@ -66,7 +66,7 @@ internal sealed class OutboxProcessor(
                           ),
                           candidate_batch AS (
                               SELECT id
-                              FROM outbox_messages
+                              FROM messaging.outbox_messages
                               WHERE status = 0
                                 AND (locked_until_utc IS NULL OR locked_until_utc < @Now)
                                 AND (next_attempt_at_utc IS NULL OR next_attempt_at_utc <= @Now)
@@ -75,7 +75,7 @@ internal sealed class OutboxProcessor(
                               LIMIT @BatchSize
                               FOR UPDATE SKIP LOCKED
                           )
-                          UPDATE outbox_messages m
+                          UPDATE messaging.outbox_messages m
                           SET locked_until_utc = @LockExpiration
                           FROM candidate_batch c
                           WHERE m.id = c.id
@@ -132,7 +132,7 @@ internal sealed class OutboxProcessor(
             {
                 await using var releaseConnection = await dataSource.OpenConnectionAsync(cancellationToken);
                 await releaseConnection.ExecuteAsync(
-                    "UPDATE outbox_messages SET locked_until_utc = NULL WHERE id = ANY(@Ids) AND status = 0",
+                    "UPDATE messaging.outbox_messages SET locked_until_utc = NULL WHERE id = ANY(@Ids) AND status = 0",
                     new { Ids = releaseQueue.ToArray() });
             }
 
@@ -143,7 +143,7 @@ internal sealed class OutboxProcessor(
                 await using var updateConnection = await dataSource.OpenConnectionAsync(cancellationToken);
 
                 var updateSql = """
-                                UPDATE outbox_messages AS m
+                                UPDATE messaging.outbox_messages AS m
                                 SET processed_on_utc = u.processed_on_utc,
                                     error = u.error,
                                     retry_count = u.retry_count,
