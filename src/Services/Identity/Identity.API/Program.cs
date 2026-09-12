@@ -1,10 +1,17 @@
 using BuildingBlocks.Application;
 using BuildingBlocks.Core.Options;
+using BuildingBlocks.Messaging.MassTransit;
+using BuildingBlocks.Outbox.PostgreSql;
+using BuildingBlocks.Persistence.EntityFrameworkCore.Extensions;
+using BuildingBlocks.Persistence.PostgreSql;
 using BuildingBlocks.Web.Endpoints;
 using BuildingBlocks.Web.Exceptions;
 using BuildingBlocks.Web.OpenApi;
 using BuildingBlocks.Web.Security;
+using Identity.API.Infrastructure.Data;
+using Identity.API.Options;
 using Keycloak.Net;
+using MassTransit;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -45,7 +52,34 @@ builder.Services.AddSingleton(provider =>
     );
 });
 
+// Add PostgreSQL DbContext (for Outbox only)
+builder.Services.AddPostgresDbContext<IdentityDbContext>(interceptors: sp =>
+    [sp.GetRequiredService<BuildingBlocks.Outbox.EntityFrameworkCore.OutboxInsertInterceptor>()]);
+
+// Add Outbox Pattern
+builder.Services.AddPostgreSqlOutbox<IdentityDbContext>();
+
+// Add MassTransit with RabbitMQ (publisher only — no consumers in Identity)
+builder.Services.AddMassTransitEventBus(
+    [typeof(Program).Assembly],
+    configure =>
+    {
+        configure.UsingRabbitMq((ctx, cfg) =>
+        {
+            var rabbitMqOptions = ctx.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+            cfg.Host(rabbitMqOptions.Host, h =>
+            {
+                h.Username(rabbitMqOptions.Username);
+                h.Password(rabbitMqOptions.Password);
+            });
+            cfg.ConfigureEndpoints(ctx);
+        });
+    });
+
 var app = builder.Build();
+
+// Apply EF Core migrations on startup
+app.Services.ApplyDatabaseMigrations<IdentityDbContext>();
 
 // Use Global Exception Handler
 app.UseGlobalExceptionHandler();
