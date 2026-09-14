@@ -120,46 +120,55 @@ internal sealed class InboxProcessor<TDbContext>(
     private async Task<bool> ProcessSingleMessageAsync(IServiceProvider serviceProvider, InboxMessage message, CancellationToken ct)
     {
         var dbContext = serviceProvider.GetRequiredService<TDbContext>();
-        await using var transaction = await dbContext.Database.BeginTransactionAsync(ct);
 
-        try
+        // NpgsqlRetryingExecutionStrategy does not support user-initiated transactions directly.
+        // We must wrap the entire transaction in CreateExecutionStrategy().ExecuteAsync() so that
+        // the retry strategy can retry the whole unit-of-work on transient failures.
+        var executionStrategy = dbContext.Database.CreateExecutionStrategy();
+
+        return await executionStrategy.ExecuteAsync(async () =>
         {
-            var msgType = InboxEventTypeResolver.GetEventType(message.Type);
-            if (msgType == null)
+            await using var transaction = await dbContext.Database.BeginTransactionAsync(ct);
+
+            try
+            {
+                var msgType = InboxEventTypeResolver.GetEventType(message.Type);
+                if (msgType == null)
+                {
+                    await transaction.RollbackAsync(ct);
+                    await FailAsync(message, $"Type not found: {message.Type}", ct);
+                    return false;
+                }
+
+                var content = JsonSerializer.Deserialize(message.Content, msgType, InboxJsonOptions.Default);
+                if (content is not IIntegrationEvent integrationEvent)
+                {
+                    await transaction.RollbackAsync(ct);
+                    await FailAsync(message, $"Content is not IIntegrationEvent. Type: {message.Type}", ct);
+                    return false;
+                }
+
+                var handled = await InvokeHandlersAsync(serviceProvider, msgType, integrationEvent, ct);
+                if (!handled)
+                {
+                    logger.LogDebug("No handler registered for {Type}, marking as processed (no-op).", message.Type);
+                }
+
+                var tracked = InboxMessage.Rehydrate(message.Id, message.Type, message.Content, message.OccurredOnUtc, message.PartitionKey, message.RetryCount);
+                dbContext.Set<InboxMessage>().Attach(tracked);
+                tracked.MarkProcessed(DateTime.UtcNow);
+
+                await dbContext.SaveChangesAsync(ct);
+                await transaction.CommitAsync(ct);
+                return true;
+            }
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync(ct);
-                await FailAsync(message, $"Type not found: {message.Type}", ct);
+                await FailAsync(message, ex.ToString(), ct);
                 return false;
             }
-
-            var content = JsonSerializer.Deserialize(message.Content, msgType, InboxJsonOptions.Default);
-            if (content is not IIntegrationEvent integrationEvent)
-            {
-                await transaction.RollbackAsync(ct);
-                await FailAsync(message, $"Content is not IIntegrationEvent. Type: {message.Type}", ct);
-                return false;
-            }
-
-            var handled = await InvokeHandlersAsync(serviceProvider, msgType, integrationEvent, ct);
-            if (!handled)
-            {
-                logger.LogDebug("No handler registered for {Type}, marking as processed (no-op).", message.Type);
-            }
-
-            var tracked = InboxMessage.Rehydrate(message.Id, message.Type, message.Content, message.OccurredOnUtc, message.PartitionKey, message.RetryCount);
-            dbContext.Set<InboxMessage>().Attach(tracked);
-            tracked.MarkProcessed(DateTime.UtcNow);
-
-            await dbContext.SaveChangesAsync(ct);
-            await transaction.CommitAsync(ct);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            await transaction.RollbackAsync(ct);
-            await FailAsync(message, ex.ToString(), ct);
-            return false;
-        }
+        });
     }
 
     private async Task<bool> InvokeHandlersAsync(IServiceProvider serviceProvider, Type eventType, IIntegrationEvent @event, CancellationToken ct)
