@@ -1,4 +1,5 @@
 using BuildingBlocks.Application;
+using BuildingBlocks.Observability;
 using BuildingBlocks.Core.Options;
 using BuildingBlocks.Messaging.MassTransit;
 using BuildingBlocks.Outbox.PostgreSql;
@@ -15,6 +16,8 @@ using MassTransit;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddObservability("Identity.API");
 
 // Add Options with Validation
 builder.Services.AddAppOptions(builder.Configuration, typeof(Program).Assembly);

@@ -1,0 +1,49 @@
+# OpenTelemetry Collector configuration for eShop Microservices
+#
+# Local/dev backend: .NET Aspire Dashboard
+# NOTE: Aspire Dashboard stores data in memory only.
+#       All trace/metric/log data is lost when the container restarts.
+#       This is by design for local development; production uses a persistent backend.
+#
+# --- PRODUCTION MIGRATION GUIDE ---
+# When switching to a production backend (e.g. Grafana + Tempo + Prometheus + Loki
+# or any APM product), ONLY the exporters.otlp.endpoint value below needs to change.
+# No application code changes are required — the services always speak OTLP to this Collector.
+# ----------------------------------
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4317"
+      http:
+        endpoint: "0.0.0.0:4318"
+
+processors:
+  batch:
+    # Batch telemetry before exporting to reduce network overhead
+    timeout: 5s
+    send_batch_size: 1024
+
+exporters:
+  otlp_grpc:
+    # Production'a geçerken SADECE bu endpoint değeri değiştirilecek,
+    # başka hiçbir yer dokunulmayacak.
+    endpoint: "aspire-dashboard:18889"
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp_grpc]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp_grpc]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp_grpc]

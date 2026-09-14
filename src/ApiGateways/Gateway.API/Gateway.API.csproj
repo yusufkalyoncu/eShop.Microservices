@@ -15,6 +15,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\BuildingBlocks\Core\BuildingBlocks.Core\BuildingBlocks.Core.csproj" />
       <ProjectReference Include="..\..\BuildingBlocks\WebApi\BuildingBlocks.Web\BuildingBlocks.Web.csproj" />
+      <ProjectReference Include="..\..\BuildingBlocks\Observability\BuildingBlocks.Observability\BuildingBlocks.Observability.csproj" />
     </ItemGroup>
 
 </Project>

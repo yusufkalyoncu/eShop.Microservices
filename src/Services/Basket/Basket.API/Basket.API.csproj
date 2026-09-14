@@ -9,6 +9,7 @@
       <ProjectReference Include="..\..\..\BuildingBlocks\WebApi\BuildingBlocks.Web\BuildingBlocks.Web.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\Core\BuildingBlocks.Application\BuildingBlocks.Application.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\BuildingBlocks.Persistence.Marten\BuildingBlocks.Persistence.Marten.csproj" />
+      <ProjectReference Include="..\..\..\BuildingBlocks\Observability\BuildingBlocks.Observability\BuildingBlocks.Observability.csproj" />
     </ItemGroup>
 
     <ItemGroup>

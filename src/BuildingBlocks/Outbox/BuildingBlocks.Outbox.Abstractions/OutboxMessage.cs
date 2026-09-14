@@ -13,10 +13,17 @@ public sealed class OutboxMessage
     public string? Error { get; private set; }
     public int RetryCount { get; private set; }
     public OutboxMessageStatus Status { get; private set; } = OutboxMessageStatus.Pending;
+    
+    /// <summary>
+    /// W3C traceparent of the originating HTTP request.
+    /// Stored so the OutboxProcessor can restore the trace context when publishing,
+    /// linking the async outbox publish span back to the original request trace.
+    /// </summary>
+    public string? TraceParent { get; init; }
 
     private OutboxMessage() { }
 
-    public OutboxMessage(string type, string content, string? partitionKey = null)
+    public OutboxMessage(string type, string content, string? partitionKey = null, string? traceParent = null)
     {
         Id = Guid.NewGuid();
         Type = type;
@@ -25,5 +32,6 @@ public sealed class OutboxMessage
         OccurredOnUtc = DateTime.UtcNow;
         RetryCount = 0;
         Status = OutboxMessageStatus.Pending;
+        TraceParent = traceParent;
     }
 }

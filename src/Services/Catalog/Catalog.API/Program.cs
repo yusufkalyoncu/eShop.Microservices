@@ -1,4 +1,5 @@
 using BuildingBlocks.Application;
+using BuildingBlocks.Observability;
 using BuildingBlocks.Grpc.Interceptors;
 using BuildingBlocks.Web.Endpoints;
 using Catalog.API.Infrastructure.Data;
@@ -12,6 +13,8 @@ using BuildingBlocks.Grpc.Extensions;
 using BuildingBlocks.Web.Security;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddObservability("Catalog.API");
 
 // Explicitly configure Kestrel to support HTTP/1.1 on 8080 and HTTP/2 (H2C) on 8081
 builder.WebHost.ConfigureGrpcPorts();

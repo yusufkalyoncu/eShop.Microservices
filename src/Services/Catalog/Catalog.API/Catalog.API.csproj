@@ -12,6 +12,7 @@
       <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\BuildingBlocks.Persistence.EntityFrameworkCore\BuildingBlocks.Persistence.EntityFrameworkCore.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\BuildingBlocks.Persistence.PostgreSql\BuildingBlocks.Persistence.PostgreSql.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\Grpc\BuildingBlocks.Grpc\BuildingBlocks.Grpc.csproj" />
+      <ProjectReference Include="..\..\..\BuildingBlocks\Observability\BuildingBlocks.Observability\BuildingBlocks.Observability.csproj" />
     </ItemGroup>
 
     <ItemGroup>

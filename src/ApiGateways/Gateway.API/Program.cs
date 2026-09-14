@@ -1,9 +1,12 @@
 using System.Reflection;
+using BuildingBlocks.Observability;
 using Gateway.API.Extensions;
 using BuildingBlocks.Core.Options;
 using BuildingBlocks.Web.Security;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddObservability("Gateway.API");
 
 // Add Options automatically from this assembly
 builder.Services.AddAppOptions(builder.Configuration, Assembly.GetExecutingAssembly());

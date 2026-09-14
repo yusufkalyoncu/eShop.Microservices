@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Text.Json;
 using BuildingBlocks.Messaging.Abstractions;
 using BuildingBlocks.Outbox.Abstractions;
@@ -80,7 +81,8 @@ internal sealed class OutboxProcessor(
                           FROM candidate_batch c
                           WHERE m.id = c.id
                           RETURNING m.id AS Id, m.type AS Type, m.content AS Content, m.partition_key AS PartitionKey,
-                                    m.occurred_on_utc AS OccurredOnUtc, m.retry_count AS RetryCount;
+                                    m.occurred_on_utc AS OccurredOnUtc, m.retry_count AS RetryCount,
+                                    m.trace_parent AS TraceParent;
                           """;
 
                 messages = (await connection.QueryAsync<OutboxMessage>(
@@ -199,8 +201,27 @@ internal sealed class OutboxProcessor(
 
                 if (content is IIntegrationEvent integrationEvent)
                 {
-                    await eventBus.PublishAsync(integrationEvent, msgType, ct);
-                    processedDate = DateTime.UtcNow;
+                    // Restore the W3C trace context saved when the outbox message was originally created.
+                    // This links the async publish span back to the originating HTTP request trace,
+                    // making the full chain visible in Aspire Dashboard as a single distributed trace:
+                    //   HTTP Request (Gateway → Identity) → Outbox Publish → RabbitMQ → Notification consume
+                    Activity? restoredActivity = null;
+                    if (message.TraceParent is not null &&
+                        ActivityContext.TryParse(message.TraceParent, null, isRemote: true, out var parentContext))
+                    {
+                        restoredActivity = new ActivitySource("BuildingBlocks.Outbox")
+                            .StartActivity("outbox.publish", ActivityKind.Producer, parentContext);
+                    }
+
+                    try
+                    {
+                        await eventBus.PublishAsync(integrationEvent, msgType, ct);
+                        processedDate = DateTime.UtcNow;
+                    }
+                    finally
+                    {
+                        restoredActivity?.Stop();
+                    }
                 }
                 else
                 {

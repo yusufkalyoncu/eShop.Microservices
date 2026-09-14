@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using BuildingBlocks.Messaging.Abstractions;
 using BuildingBlocks.Outbox.Abstractions;
@@ -12,11 +13,14 @@ public sealed class OutboxService<TContext>(TContext dbContext) : IOutboxService
         where T : class, IIntegrationEvent
     {
         var runtimeType = message.GetType();
-
         var jsonContent = JsonSerializer.Serialize(message, runtimeType, OutboxJsonOptions.Default);
 
-        var outboxMessage = new OutboxMessage(T.EventName, jsonContent, partitionKey);
+        // Capture the current W3C traceparent so the OutboxProcessor can restore
+        // this trace context when publishing to RabbitMQ, creating a single
+        // end-to-end trace: HTTP Request → Outbox publish → RabbitMQ → Consumer.
+        var traceParent = Activity.Current?.Id;
 
+        var outboxMessage = new OutboxMessage(T.EventName, jsonContent, partitionKey, traceParent);
         await dbContext.Set<OutboxMessage>().AddAsync(outboxMessage, cancellationToken);
     }
 }

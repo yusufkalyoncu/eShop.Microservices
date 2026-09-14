@@ -1,4 +1,5 @@
 using BuildingBlocks.Core.Options;
+using BuildingBlocks.Observability;
 using BuildingBlocks.Inbox.PostgreSql;
 using BuildingBlocks.Messaging.MassTransit;
 using BuildingBlocks.Persistence.EntityFrameworkCore.Extensions;
@@ -13,6 +14,8 @@ using Notification.API.Infrastructure.Data;
 using Notification.API.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddObservability("Notification.API");
 
 // Add Options with Validation
 builder.Services.AddAppOptions(builder.Configuration, typeof(Program).Assembly);

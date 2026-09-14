@@ -19,6 +19,7 @@ public class OutboxMessageConfiguration : IEntityTypeConfiguration<OutboxMessage
         builder.Property(x => x.RetryCount).IsRequired().HasDefaultValue(0);
         builder.Property(x => x.Status).IsRequired().HasDefaultValue(OutboxMessageStatus.Pending);
         builder.Property(x => x.NextAttemptAtUtc).IsRequired(false);
+        builder.Property(x => x.TraceParent).HasMaxLength(200).IsRequired(false);
 
         builder.HasIndex(x => new { x.PartitionKey, x.OccurredOnUtc })
             .HasFilter("\"status\" = 0")

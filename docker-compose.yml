@@ -76,6 +76,32 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  # ─── Observability ───────────────────────────────────────────────────────────
+  aspire-dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
+    container_name: eshop-aspire-dashboard
+    ports:
+      - "18888:18888"   # Aspire Dashboard UI — open http://localhost:18888 to view traces/metrics/logs
+      - "14317:18889"   # Host → Aspire OTLP (optional, for debugging without Collector)
+    environment:
+      # SECURITY WARNING: Only for local/dev. Production does NOT use this container at all.
+      DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS: "true"
+    restart: unless-stopped
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: eshop-otel-collector
+    volumes:
+      - ./infrastructure/otel/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    ports:
+      - "4317:4317"   # OTLP gRPC — microservices send telemetry here
+      - "4318:4318"   # OTLP HTTP
+    depends_on:
+      - aspire-dashboard
+    restart: unless-stopped
+  # ─────────────────────────────────────────────────────────────────────────────
+
   gateway.api:
     image: eshop-gateway-api
     container_name: eshop-gateway-api
@@ -91,6 +117,8 @@ services:
       - ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address=http://catalog.api:8080
       - ReverseProxy__Clusters__basket-cluster__Destinations__destination1__Address=http://basket.api:8080
       - ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address=http://identity.api:8080
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
     ports:
       - "5050:8080"
     depends_on:
@@ -100,6 +128,8 @@ services:
         condition: service_started
       keycloak:
         condition: service_healthy
+      otel-collector:
+        condition: service_started
     restart: unless-stopped
 
   catalog.api:
@@ -119,11 +149,15 @@ services:
       - Identity__Audience=eshop-gateway-client
       - Identity__ValidIssuers__0=http://keycloak:8080/realms/eShopRealm
       - Identity__ValidIssuers__1=http://localhost:9090/realms/eShopRealm
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
     ports:
       - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
+      otel-collector:
+        condition: service_started
     restart: unless-stopped
 
   keycloak:
@@ -171,12 +205,16 @@ services:
       - Identity__Audience=eshop-gateway-client
       - Identity__ValidIssuers__0=http://keycloak:8080/realms/eShopRealm
       - Identity__ValidIssuers__1=http://localhost:9090/realms/eShopRealm
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
     ports:
       - "8081:8080"
     depends_on:
       postgres:
         condition: service_healthy
       catalog.api:
+        condition: service_started
+      otel-collector:
         condition: service_started
     restart: unless-stopped
 
@@ -203,6 +241,8 @@ services:
       - RabbitMq__Host=amqp://rabbitmq:5672
       - RabbitMq__Username=guest
       - RabbitMq__Password=guest
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
     ports:
       - "8082:8080"
     depends_on:
@@ -212,6 +252,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      otel-collector:
+        condition: service_started
     restart: unless-stopped
 
   notification.api:
@@ -230,6 +272,8 @@ services:
       - RabbitMq__Host=amqp://rabbitmq:5672
       - RabbitMq__Username=guest
       - RabbitMq__Password=guest
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
     ports:
       - "8083:8080"
     depends_on:
@@ -237,6 +281,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      otel-collector:
+        condition: service_started
     restart: unless-stopped
 
 volumes:

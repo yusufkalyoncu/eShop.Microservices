@@ -7,6 +7,7 @@
         <ProjectReference Include="..\..\..\BuildingBlocks\Inbox\BuildingBlocks.Inbox.PostgreSql\BuildingBlocks.Inbox.PostgreSql.csproj" />
         <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\BuildingBlocks.Persistence.PostgreSql\BuildingBlocks.Persistence.PostgreSql.csproj" />
         <ProjectReference Include="..\..\Identity\Identity.Contracts\Identity.Contracts.csproj" />
+        <ProjectReference Include="..\..\..\BuildingBlocks\Observability\BuildingBlocks.Observability\BuildingBlocks.Observability.csproj" />
     </ItemGroup>
 
     <ItemGroup>

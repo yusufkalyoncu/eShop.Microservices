@@ -8,6 +8,7 @@
       <ProjectReference Include="..\..\..\BuildingBlocks\Messaging\BuildingBlocks.Messaging.MassTransit\BuildingBlocks.Messaging.MassTransit.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\Outbox\BuildingBlocks.Outbox.PostgreSql\BuildingBlocks.Outbox.PostgreSql.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\BuildingBlocks.Persistence.PostgreSql\BuildingBlocks.Persistence.PostgreSql.csproj" />
+      <ProjectReference Include="..\..\..\BuildingBlocks\Observability\BuildingBlocks.Observability\BuildingBlocks.Observability.csproj" />
     </ItemGroup>
 
     <ItemGroup>

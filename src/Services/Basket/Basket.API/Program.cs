@@ -1,4 +1,5 @@
 using BuildingBlocks.Application;
+using BuildingBlocks.Observability;
 using BuildingBlocks.Persistence.Marten;
 using BuildingBlocks.Web.Endpoints;
 using BuildingBlocks.Web.Exceptions;
@@ -9,6 +10,8 @@ using Basket.API.Options;
 using BuildingBlocks.Core.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddObservability("Basket.API");
 
 // Add App Options
 builder.Services.AddAppOptions(builder.Configuration, typeof(Program).Assembly);
