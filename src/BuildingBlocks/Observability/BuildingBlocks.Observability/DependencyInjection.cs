@@ -25,7 +25,7 @@ public static class DependencyInjection
 
         var options = builder.Configuration
             .GetSection(ObservabilityOptions.SectionName)
-            .Get<ObservabilityOptions>()!;
+            .Get<ObservabilityOptions>() ?? new ObservabilityOptions();
 
         var effectiveServiceName = !string.IsNullOrWhiteSpace(options.ServiceName)
             ? options.ServiceName
