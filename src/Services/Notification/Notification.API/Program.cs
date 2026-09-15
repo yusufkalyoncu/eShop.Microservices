@@ -1,7 +1,7 @@
 using BuildingBlocks.Core.Options;
 using BuildingBlocks.Observability;
 using BuildingBlocks.Inbox.PostgreSql;
-using BuildingBlocks.Messaging.MassTransit;
+using BuildingBlocks.Messaging.MassTransit.Inbox;
 using BuildingBlocks.Persistence.EntityFrameworkCore.Extensions;
 using BuildingBlocks.Persistence.PostgreSql;
 using BuildingBlocks.Web.Exceptions;
@@ -41,7 +41,7 @@ builder.Services.AddScoped<NotificationDispatcher>();
 
 // Add MassTransit with RabbitMQ — scans for IIntegrationEventHandler<> implementations
 // and auto-registers InboxMassTransitConsumer<T> for each event type
-builder.Services.AddMassTransitEventBus(
+builder.Services.AddMassTransitEventBusWithInbox(
     [typeof(Program).Assembly, typeof(UserRegisteredIntegrationEvent).Assembly],
     configure =>
     {

@@ -3,11 +3,11 @@ using BuildingBlocks.Messaging.Abstractions;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace BuildingBlocks.Messaging.MassTransit;
+namespace BuildingBlocks.Messaging.MassTransit.Inbox;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddMassTransitEventBus(
+    public static IServiceCollection AddMassTransitEventBusWithInbox(
         this IServiceCollection services,
         Assembly[] scanAssemblies,
         Action<IBusRegistrationConfigurator>? configure = null)
@@ -21,7 +21,7 @@ public static class DependencyInjection
             // 1. Find all handler types and auto-register them in DI
             var handlerTypes = scanAssemblies
                 .SelectMany(a => a.GetTypes())
-                .Where(t => !t.IsAbstract && !t.IsInterface)
+                .Where(t => t is { IsAbstract: false, IsInterface: false })
                 .Select(t => new
                 {
                     ImplementationType = t,
@@ -29,7 +29,7 @@ public static class DependencyInjection
                         .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IIntegrationEventHandler<>))
                         .ToList()
                 })
-                .Where(x => x.HandlerInterfaces.Count > 0)
+                .Where(a => a.HandlerInterfaces.Count > 0)
                 .ToList();
 
             foreach (var handlerInfo in handlerTypes)
@@ -41,17 +41,16 @@ public static class DependencyInjection
                 }
             }
 
-            // 2. Register DirectMassTransitConsumer<T> for each distinct event type.
-            //    The consumer resolves the handler directly from DI — no Inbox involved.
-            //    Use AddMassTransitEventBusWithInbox() (BuildingBlocks.Messaging.MassTransit.Inbox)
-            //    if you need the Inbox pattern instead.
+            // 2. Register InboxMassTransitConsumer<T> for each distinct event type.
+            //    Messages are written to the Inbox first; the InboxProcessor handles actual dispatch.
             var eventTypes = handlerTypes
                 .SelectMany(h => h.HandlerInterfaces)
                 .Select(i => i.GetGenericArguments()[0])
                 .Distinct()
                 .ToList();
 
-            foreach (var consumerType in eventTypes.Select(eventType => typeof(DirectMassTransitConsumer<>).MakeGenericType(eventType)))
+            foreach (var consumerType in eventTypes.Select(eventType =>
+                         typeof(InboxMassTransitConsumer<>).MakeGenericType(eventType)))
             {
                 x.AddConsumer(consumerType);
             }

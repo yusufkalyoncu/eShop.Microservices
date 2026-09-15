@@ -7,11 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BuildingBlocks.Messaging.Abstractions\BuildingBlocks.Messaging.Abstractions.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="MassTransit.RabbitMQ" Version="8.4.1" />
+        <ProjectReference Include="..\BuildingBlocks.Messaging.MassTransit\BuildingBlocks.Messaging.MassTransit.csproj" />
+        <ProjectReference Include="..\..\Inbox\BuildingBlocks.Inbox.Abstractions\BuildingBlocks.Inbox.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>
