@@ -8,9 +8,14 @@ using BuildingBlocks.Web.OpenApi;
 using BuildingBlocks.Web.Exceptions;
 using BuildingBlocks.Persistence.EntityFrameworkCore.Extensions;
 using Catalog.API.Features.Grpc;
-
 using BuildingBlocks.Grpc.Extensions;
+using BuildingBlocks.Messaging.MassTransit;
+using BuildingBlocks.Messaging.MassTransit.Options;
+using BuildingBlocks.Outbox.EntityFrameworkCore;
+using BuildingBlocks.Outbox.PostgreSql;
 using BuildingBlocks.Web.Security;
+using MassTransit;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +25,28 @@ builder.AddObservability("Catalog.API");
 builder.WebHost.ConfigureGrpcPorts();
 
 // Add Database
-builder.Services.AddPostgresDbContext<CatalogDbContext>();
+builder.Services.AddPostgresDbContext<CatalogDbContext>(interceptors: sp =>
+    [sp.GetRequiredService<OutboxInsertInterceptor>()]);
+
+// Add Outbox Pattern
+builder.Services.AddPostgreSqlOutbox<CatalogDbContext>();
+
+// Add MassTransit with RabbitMQ — scans for IIntegrationEventHandler<> implementations
+builder.Services.AddMassTransitEventBus(
+    [typeof(Program).Assembly],
+    configure =>
+    {
+        configure.UsingRabbitMq((ctx, cfg) =>
+        {
+            var rabbitMqOptions = ctx.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+            cfg.Host(rabbitMqOptions.Host, h =>
+            {
+                h.Username(rabbitMqOptions.Username);
+                h.Password(rabbitMqOptions.Password);
+            });
+            cfg.ConfigureEndpoints(ctx);
+        });
+    });
 
 // Add CQRS Handlers and Pipeline Behaviors (Logging, Validation) automatically using Scrutor
 builder.Services.AddApplicationHandlers(typeof(Program).Assembly);

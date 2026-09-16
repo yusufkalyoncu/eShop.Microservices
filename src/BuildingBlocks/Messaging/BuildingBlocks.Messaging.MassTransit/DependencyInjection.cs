@@ -13,6 +13,7 @@ public static class DependencyInjection
         Action<IBusRegistrationConfigurator>? configure = null)
     {
         services.AddSingleton<IEventBus, MassTransitEventBus>();
+        services.AddOptions<Options.RabbitMqOptions>().BindConfiguration(Options.RabbitMqOptions.SectionName);
 
         services.AddMassTransit(x =>
         {

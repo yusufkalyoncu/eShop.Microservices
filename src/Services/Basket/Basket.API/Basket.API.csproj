@@ -6,10 +6,13 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\BuildingBlocks\Messaging\BuildingBlocks.Messaging.Abstractions\BuildingBlocks.Messaging.Abstractions.csproj" />
+      <ProjectReference Include="..\..\..\BuildingBlocks\Messaging\BuildingBlocks.Messaging.MassTransit\BuildingBlocks.Messaging.MassTransit.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\WebApi\BuildingBlocks.Web\BuildingBlocks.Web.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\Core\BuildingBlocks.Application\BuildingBlocks.Application.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\BuildingBlocks.Persistence.Marten\BuildingBlocks.Persistence.Marten.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\Observability\BuildingBlocks.Observability\BuildingBlocks.Observability.csproj" />
+      <ProjectReference Include="..\..\Catalog\Catalog.Contracts\Catalog.Contracts.csproj" />
     </ItemGroup>
 
     <ItemGroup>

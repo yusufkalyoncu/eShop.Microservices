@@ -8,11 +8,15 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\BuildingBlocks\Core\BuildingBlocks.Core\BuildingBlocks.Core.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\Core\BuildingBlocks.Application\BuildingBlocks.Application.csproj" />
+      <ProjectReference Include="..\..\..\BuildingBlocks\Messaging\BuildingBlocks.Messaging.MassTransit\BuildingBlocks.Messaging.MassTransit.csproj" />
+      <ProjectReference Include="..\..\..\BuildingBlocks\Outbox\BuildingBlocks.Outbox.Abstractions\BuildingBlocks.Outbox.Abstractions.csproj" />
+      <ProjectReference Include="..\..\..\BuildingBlocks\Outbox\BuildingBlocks.Outbox.PostgreSql\BuildingBlocks.Outbox.PostgreSql.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\WebApi\BuildingBlocks.Web\BuildingBlocks.Web.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\BuildingBlocks.Persistence.EntityFrameworkCore\BuildingBlocks.Persistence.EntityFrameworkCore.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\Persistence\BuildingBlocks.Persistence.PostgreSql\BuildingBlocks.Persistence.PostgreSql.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\Grpc\BuildingBlocks.Grpc\BuildingBlocks.Grpc.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\Observability\BuildingBlocks.Observability\BuildingBlocks.Observability.csproj" />
+      <ProjectReference Include="..\Catalog.Contracts\Catalog.Contracts.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -38,6 +42,10 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     </PropertyGroup>
 
 </Project>

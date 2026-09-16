@@ -69,7 +69,7 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -149,12 +149,17 @@ services:
       - Identity__Audience=eshop-gateway-client
       - Identity__ValidIssuers__0=http://keycloak:8080/realms/eShopRealm
       - Identity__ValidIssuers__1=http://localhost:9090/realms/eShopRealm
+      - RabbitMq__Host=amqp://rabbitmq:5672
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
     ports:
       - "8080:8080"
     depends_on:
       postgres:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
       otel-collector:
         condition: service_started
@@ -205,12 +210,17 @@ services:
       - Identity__Audience=eshop-gateway-client
       - Identity__ValidIssuers__0=http://keycloak:8080/realms/eShopRealm
       - Identity__ValidIssuers__1=http://localhost:9090/realms/eShopRealm
+      - RabbitMq__Host=amqp://rabbitmq:5672
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
     ports:
       - "8081:8080"
     depends_on:
       postgres:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
       catalog.api:
         condition: service_started

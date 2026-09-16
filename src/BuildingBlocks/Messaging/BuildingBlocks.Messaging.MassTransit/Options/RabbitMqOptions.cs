@@ -1,7 +1,7 @@
 using BuildingBlocks.Core.Options;
 using FluentValidation;
 
-namespace Identity.API.Options;
+namespace BuildingBlocks.Messaging.MassTransit.Options;
 
 public sealed class RabbitMqOptions : IAppOption
 {

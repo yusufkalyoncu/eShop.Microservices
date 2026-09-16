@@ -32,4 +32,9 @@ public class ShoppingCartItem : Entity<Guid>
     {
         Quantity = quantity;
     }
+
+    public void UpdatePrice(decimal newPrice)
+    {
+        Price = newPrice;
+    }
 }

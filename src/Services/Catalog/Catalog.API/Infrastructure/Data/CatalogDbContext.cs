@@ -1,3 +1,4 @@
+using BuildingBlocks.Outbox.EntityFrameworkCore;
 using Catalog.API.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,7 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CatalogDbContext).Assembly);
+        modelBuilder.ApplyOutboxConfiguration();
         
         base.OnModelCreating(modelBuilder);
     }

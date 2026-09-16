@@ -1,4 +1,5 @@
 using BuildingBlocks.Core.Domain;
+using Catalog.API.Domain.Events;
 using Catalog.API.Domain.ValueObjects;
 
 namespace Catalog.API.Domain.Entities;
@@ -25,7 +26,13 @@ public sealed class Product : AggregateRoot<Guid>
         };
     }
 
-    public void UpdatePrice(Money newPrice) => Price = newPrice;
+    public void UpdatePrice(Money newPrice)
+    {
+        if (Price == newPrice) return;
+        Price = newPrice;
+        AddDomainEvent(new ProductPriceChangedDomainEvent(Id, newPrice));
+    }
+
     public void ChangeCategory(Guid newCategoryId) => CategoryId = newCategoryId;
 
     public void UpdateDetails(ProductName name, ProductDescription description)

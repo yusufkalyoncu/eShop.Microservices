@@ -2,6 +2,7 @@ using BuildingBlocks.Core.Options;
 using BuildingBlocks.Observability;
 using BuildingBlocks.Inbox.PostgreSql;
 using BuildingBlocks.Messaging.MassTransit.Inbox;
+using BuildingBlocks.Messaging.MassTransit.Options;
 using BuildingBlocks.Persistence.EntityFrameworkCore.Extensions;
 using BuildingBlocks.Persistence.PostgreSql;
 using BuildingBlocks.Web.Exceptions;
@@ -11,7 +12,7 @@ using MassTransit;
 using Microsoft.Extensions.Options;
 using Notification.API.Application.Strategies;
 using Notification.API.Infrastructure.Data;
-using Notification.API.Options;
+
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -8,6 +8,9 @@ using BuildingBlocks.Web.Security;
 using Microsoft.Extensions.Options;
 using Basket.API.Options;
 using BuildingBlocks.Core.Options;
+using BuildingBlocks.Messaging.MassTransit;
+using BuildingBlocks.Messaging.MassTransit.Options;
+using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +21,22 @@ builder.Services.AddAppOptions(builder.Configuration, typeof(Program).Assembly);
 
 // Add Marten Document Database
 builder.Services.AddMartenDbContext();
+
+builder.Services.AddMassTransitEventBus(
+    [typeof(Program).Assembly],
+    configure =>
+    {
+        configure.UsingRabbitMq((ctx, cfg) =>
+        {
+            var rabbitMqOptions = ctx.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+            cfg.Host(rabbitMqOptions.Host, h =>
+            {
+                h.Username(rabbitMqOptions.Username);
+                h.Password(rabbitMqOptions.Password);
+            });
+            cfg.ConfigureEndpoints(ctx);
+        });
+    });
 
 // Register gRPC Client for Catalog API
 builder.Services.AddGrpcClient<Catalog.Grpc.CatalogGrpcService.CatalogGrpcServiceClient>((provider, options) =>

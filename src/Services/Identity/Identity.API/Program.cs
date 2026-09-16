@@ -2,6 +2,7 @@ using BuildingBlocks.Application;
 using BuildingBlocks.Observability;
 using BuildingBlocks.Core.Options;
 using BuildingBlocks.Messaging.MassTransit;
+using BuildingBlocks.Messaging.MassTransit.Options;
 using BuildingBlocks.Outbox.PostgreSql;
 using BuildingBlocks.Persistence.EntityFrameworkCore.Extensions;
 using BuildingBlocks.Persistence.PostgreSql;
