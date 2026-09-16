@@ -1,89 +1,48 @@
 using BuildingBlocks.Core.CQRS;
 using BuildingBlocks.Core.Results;
 using BuildingBlocks.Outbox.Abstractions;
-using Identity.API.Domain.Errors;
+using Identity.API.Domain.Services;
 using Identity.API.Features.Auth.LoginUser;
 using Identity.API.Infrastructure.Data;
 using Identity.Contracts.IntegrationEvents;
-using Keycloak.Net;
-using Keycloak.Net.Models.Users;
-using Microsoft.Extensions.Options;
 
 namespace Identity.API.Features.Auth.RegisterUser;
 
 internal sealed class RegisterUserHandler(
-    KeycloakClient keycloakClient,
-    ICommandHandler<LoginUserCommand, LoginResponse> loginHandler,
-    IOptions<Identity.API.Options.KeycloakOptions> keycloakOptions,
+    IIdentityService identityService,
     IOutboxService outboxService,
     IdentityDbContext dbContext)
     : ICommandHandler<RegisterUserCommand, LoginResponse>
 {
     public async Task<Result<LoginResponse>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
-        var user = new User
-        {
-            UserName = request.Username,
-            Email = request.Email,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            Enabled = true,
-            EmailVerified = true,
-            RequiredActions = Array.Empty<string>()
-        };
+        var registerResult = await identityService.RegisterUserAsync(
+            request.Username, 
+            request.Email, 
+            request.FirstName, 
+            request.LastName, 
+            request.Password, 
+            cancellationToken);
 
-        try
+        if (registerResult.IsFailure)
         {
-            var success = await keycloakClient.CreateUserAsync(keycloakOptions.Value.Realm, user, cancellationToken);
-            if (!success)
-            {
-                return Result.Failure<LoginResponse>(IdentityErrors.Auth.RegisterFailed);
-            }
-        }
-        catch (Exception ex) when (ex.Message.Contains("409") || ex.Message.Contains("Conflict"))
-        {
-            return Result.Failure<LoginResponse>(IdentityErrors.Auth.UserAlreadyExists);
-        }
-        catch (Exception)
-        {
-            return Result.Failure<LoginResponse>(IdentityErrors.Auth.RegisterFailed);
+            return Result.Failure<LoginResponse>(registerResult.Error);
         }
 
-        // Fetch the user to get their ID
-        var users = await keycloakClient.GetUsersAsync(keycloakOptions.Value.Realm, username: request.Username, cancellationToken: cancellationToken);
-        var createdUser = users.FirstOrDefault();
+        // Publish UserRegisteredIntegrationEvent via Outbox
+        var integrationEvent = new UserRegisteredIntegrationEvent(
+            EventId: Guid.NewGuid(),
+            UserId: registerResult.Data,
+            Email: request.Email,
+            FirstName: request.FirstName,
+            LastName: request.LastName,
+            RegisteredAt: DateTime.UtcNow
+        );
 
-        if (createdUser != null)
-        {
-            // Set the password explicitly as permanent
-            await keycloakClient.ResetUserPasswordAsync(keycloakOptions.Value.Realm, createdUser.Id, request.Password, false, cancellationToken);
+        await outboxService.AddAsync(integrationEvent, cancellationToken: cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
-            // Assign 'user' role
-            var realmRoles = await keycloakClient.GetRolesAsync(keycloakOptions.Value.Realm, cancellationToken: cancellationToken);
-            var userRole = realmRoles.FirstOrDefault(r => r.Name == BuildingBlocks.Web.Security.Roles.User);
-
-            if (userRole != null)
-            {
-                await keycloakClient.AddRealmRoleMappingsToUserAsync(keycloakOptions.Value.Realm, createdUser.Id, new[] { userRole }, cancellationToken);
-            }
-
-            // Publish UserRegisteredIntegrationEvent via Outbox
-            var integrationEvent = new UserRegisteredIntegrationEvent(
-                EventId: Guid.NewGuid(),
-                UserId: createdUser.Id,
-                Email: request.Email,
-                FirstName: request.FirstName,
-                LastName: request.LastName,
-                RegisteredAt: DateTime.UtcNow
-            );
-
-            await outboxService.AddAsync(integrationEvent, cancellationToken: cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
-        }
-
-        // Login user to get the token
-        var loginResult = await loginHandler.Handle(new LoginUserCommand(request.Username, request.Password), cancellationToken);
-
-        return loginResult;
+        // Login user to get the token directly
+        return await identityService.LoginAsync(request.Username, request.Password, cancellationToken);
     }
 }

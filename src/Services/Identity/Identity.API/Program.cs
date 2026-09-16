@@ -11,10 +11,11 @@ using BuildingBlocks.Web.Exceptions;
 using BuildingBlocks.Web.OpenApi;
 using BuildingBlocks.Web.Security;
 using Identity.API.Infrastructure.Data;
-using Identity.API.Options;
 using Keycloak.Net;
 using MassTransit;
 using Microsoft.Extensions.Options;
+using Identity.API.Domain.Services;
+using Identity.API.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,6 +56,9 @@ builder.Services.AddSingleton(provider =>
         new Keycloak.Net.KeycloakOptions(adminClientId: keycloakOptions.ClientId, authenticationRealm: keycloakOptions.Realm)
     );
 });
+
+// Register Identity Service
+builder.Services.AddScoped<IIdentityService, IdentityService>();
 
 // Add PostgreSQL DbContext (for Outbox only)
 builder.Services.AddPostgresDbContext<IdentityDbContext>(interceptors: sp =>
