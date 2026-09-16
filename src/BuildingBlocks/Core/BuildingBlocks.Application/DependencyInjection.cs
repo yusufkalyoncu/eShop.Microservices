@@ -32,6 +32,10 @@ public static class DependencyInjection
             .AddClasses(filter => filter.AssignableTo(typeof(IQueryHandler<,>)), publicOnly: false)
             .AsImplementedInterfaces()
             .WithScopedLifetime()
+
+            .AddClasses(filter => filter.AssignableTo(typeof(IDomainEventHandler<>)), publicOnly: false)
+            .AsImplementedInterfaces()
+            .WithScopedLifetime()
         );
 
         // Decorate Handlers with Logging and Validation pipelines
