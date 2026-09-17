@@ -5,6 +5,8 @@ using BuildingBlocks.Web.Security;
 
 namespace Catalog.API.Features.Categories.UpdateCategory;
 
+public record UpdateCategoryRequest(string Name, string Description);
+
 public sealed class UpdateCategoryEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)

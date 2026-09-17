@@ -5,6 +5,13 @@ using BuildingBlocks.Web.Security;
 
 namespace Catalog.API.Features.Products.UpdateProduct;
 
+public record UpdateProductRequest(
+    string Name,
+    string Description,
+    decimal Price,
+    string Currency,
+    Guid CategoryId);
+
 public sealed class UpdateProductEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)

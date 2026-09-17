@@ -5,6 +5,8 @@ using BuildingBlocks.Web.Security;
 
 namespace Catalog.API.Features.Products.CreateProduct;
 
+public record CreateProductResponse(Guid Id);
+
 public sealed class CreateProductEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
@@ -12,12 +14,12 @@ public sealed class CreateProductEndpoint : IEndpoint
         app.MapPost("/products",async (CreateProductCommand command, ICommandHandler<CreateProductCommand, Guid> handler, CancellationToken ct) =>
         {
             var result = await handler.Handle(command, ct);
-            return result.Match();
+            return result.Match(id => new CreateProductResponse(id));
         })
         .WithTags("Products")
         .WithSummary("Creates a new product")
         .WithDescription("Creates a new product in the catalog")
-        .Produces<Guid>(StatusCodes.Status201Created)
+        .Produces<CreateProductResponse>(StatusCodes.Status201Created)
         .ProducesProblem(StatusCodes.Status400BadRequest)
         .ProducesProblem(StatusCodes.Status401Unauthorized)
         .ProducesProblem(StatusCodes.Status403Forbidden)
