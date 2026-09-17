@@ -9,13 +9,9 @@ public sealed class UpdateProductEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPut("/products/{id:guid}", async (Guid id, UpdateProductCommand command, ICommandHandler<UpdateProductCommand> handler, CancellationToken ct) =>
+        app.MapPut("/products/{id:guid}", async (Guid id, UpdateProductRequest request, ICommandHandler<UpdateProductCommand> handler, CancellationToken ct) =>
         {
-            if (id != command.Id)
-            {
-                return Results.BadRequest("Id in route does not match id in body.");
-            }
-
+            var command = new UpdateProductCommand(id, request.Name, request.Description, request.Price, request.Currency, request.CategoryId);
             var result = await handler.Handle(command, ct);
             return result.Match();
         })

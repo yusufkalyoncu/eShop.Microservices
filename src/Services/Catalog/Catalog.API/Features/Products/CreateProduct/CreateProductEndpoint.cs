@@ -15,6 +15,8 @@ public sealed class CreateProductEndpoint : IEndpoint
             return result.Match();
         })
         .WithTags("Products")
+        .WithSummary("Creates a new product")
+        .WithDescription("Creates a new product in the catalog")
         .Produces<Guid>(StatusCodes.Status201Created)
         .ProducesProblem(StatusCodes.Status400BadRequest)
         .ProducesProblem(StatusCodes.Status401Unauthorized)

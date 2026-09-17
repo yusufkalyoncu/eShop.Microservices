@@ -9,13 +9,9 @@ public sealed class UpdateCategoryEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPut("/categories/{id:guid}", async (Guid id, UpdateCategoryCommand command, ICommandHandler<UpdateCategoryCommand> handler, CancellationToken ct) =>
+        app.MapPut("/categories/{id:guid}", async (Guid id, UpdateCategoryRequest request, ICommandHandler<UpdateCategoryCommand> handler, CancellationToken ct) =>
         {
-            if (id != command.Id)
-            {
-                return Results.BadRequest("Id in route does not match id in body.");
-            }
-
+            var command = new UpdateCategoryCommand(id, request.Name, request.Description);
             var result = await handler.Handle(command, ct);
             return result.Match();
         })
