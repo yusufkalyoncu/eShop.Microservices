@@ -57,6 +57,25 @@ services:
       start_period: 10s
     restart: unless-stopped
 
+  ordering-db:
+    image: postgres:16-alpine
+    container_name: eshop-ordering-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: orderingdb
+    ports:
+      - "5435:5432"
+    volumes:
+      - ordering_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d orderingdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
     container_name: eshop-rabbitmq
@@ -117,6 +136,7 @@ services:
       - ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address=http://catalog.api:8080
       - ReverseProxy__Clusters__basket-cluster__Destinations__destination1__Address=http://basket.api:8080
       - ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address=http://identity.api:8080
+      - ReverseProxy__Clusters__ordering-cluster__Destinations__destination1__Address=http://ordering.api:8080
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
     ports:
@@ -295,8 +315,40 @@ services:
         condition: service_started
     restart: unless-stopped
 
+  ordering.api:
+    image: eshop-ordering-api
+    container_name: eshop-ordering-api
+    build:
+      context: .
+      dockerfile: src/Services/Ordering/Ordering.API/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Postgres__Host=ordering-db
+      - Postgres__Port=5432
+      - Postgres__Database=orderingdb
+      - Postgres__Username=postgres
+      - Postgres__Password=postgrespassword
+      - Identity__Authority=http://keycloak:8080/realms/eShopRealm
+      - Identity__Audience=eshop-gateway-client
+      - RabbitMq__Host=amqp://rabbitmq:5672
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+    ports:
+      - "8084:8080"
+    depends_on:
+      ordering-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   identity_db_data:
   notification_db_data:
+  ordering_db_data:
   rabbitmq_data:

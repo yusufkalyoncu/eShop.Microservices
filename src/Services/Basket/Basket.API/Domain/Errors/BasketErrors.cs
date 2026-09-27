@@ -9,6 +9,10 @@ public static class BasketErrors
         public static readonly Error NotFound = Error.NotFound(
             "Basket.NotFound",
             "Basket not found.");
+            
+        public static readonly Error Empty = Error.Conflict(
+            "Basket.Empty",
+            "Basket is empty.");
     }
 
     public static class Item

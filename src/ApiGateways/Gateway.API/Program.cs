@@ -31,7 +31,8 @@ app.UseGatewayDocs(new Dictionary<string, string>
 {
     { "catalog", "/catalog-api/openapi/v1.json" },
     { "basket", "/basket-api/openapi/v1.json" },
-    { "identity", "/identity-api/openapi/v1.json" }
+    { "identity", "/identity-api/openapi/v1.json" },
+    { "ordering", "/ordering-api/openapi/v1.json" }
 });
 
 app.Run();
