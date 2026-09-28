@@ -1,6 +1,7 @@
 using BuildingBlocks.Core.CQRS;
 using BuildingBlocks.Web.Endpoints;
 using BuildingBlocks.Web.Extensions;
+using BuildingBlocks.Web.Security;
 
 namespace Ordering.API.Features.Orders.GetOrderById;
 
@@ -8,9 +9,9 @@ public class GetOrderByIdEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("/orders/id/{id}", async (Guid id, BuildingBlocks.Web.Security.ICurrentUser currentUser, IQueryHandler<GetOrderByIdQuery, GetOrderByIdResult> handler, CancellationToken ct) =>
+        app.MapGet("/orders/id/{id}", async (Guid id, ICurrentUser currentUser, IQueryHandler<GetOrderByIdQuery, GetOrderByIdResult> handler, CancellationToken ct) =>
         {
-            var userName = currentUser.Name ?? throw new UnauthorizedAccessException("User is not authenticated.");
+            var userName = currentUser.GetRequiredName();
             var result = await handler.Handle(new GetOrderByIdQuery(id, userName), ct);
             return result.Match(res => res);
         })

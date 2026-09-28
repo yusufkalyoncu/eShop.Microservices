@@ -1,6 +1,7 @@
 using BuildingBlocks.Core.CQRS;
 using BuildingBlocks.Web.Endpoints;
 using BuildingBlocks.Web.Extensions;
+using BuildingBlocks.Web.Security;
 
 namespace Basket.API.Features.AddItemToBasket;
 
@@ -11,9 +12,9 @@ public class AddItemToBasketEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("/basket", async (AddItemToBasketRequest request, BuildingBlocks.Web.Security.ICurrentUser currentUser, ICommandHandler<AddItemToBasketCommand, AddItemToBasketResult> handler, CancellationToken ct) =>
+        app.MapPost("/basket", async (AddItemToBasketRequest request, ICurrentUser currentUser, ICommandHandler<AddItemToBasketCommand, AddItemToBasketResult> handler, CancellationToken ct) =>
         {
-            var userName = currentUser.Name ?? throw new UnauthorizedAccessException("User is not authenticated.");
+            var userName = currentUser.GetRequiredName();
             var command = new AddItemToBasketCommand(userName, request.ProductId, request.Quantity);
 
             var result = await handler.Handle(command, ct);

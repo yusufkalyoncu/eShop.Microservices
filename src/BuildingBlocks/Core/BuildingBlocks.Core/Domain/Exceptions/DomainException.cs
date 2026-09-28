@@ -1,8 +1,6 @@
 using BuildingBlocks.Core.Results;
+using BuildingBlocks.Core.Exceptions;
 
 namespace BuildingBlocks.Core.Domain.Exceptions;
 
-public class DomainException(Error error) : Exception(error.Description)
-{
-    public Error Error { get; } = error;
-}
+public class DomainException(Error error) : CustomException(error);

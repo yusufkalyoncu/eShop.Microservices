@@ -1,6 +1,7 @@
 using BuildingBlocks.Core.CQRS;
 using BuildingBlocks.Web.Endpoints;
 using BuildingBlocks.Web.Extensions;
+using BuildingBlocks.Web.Security;
 
 namespace Ordering.API.Features.Orders.GetOrders;
 
@@ -8,9 +9,9 @@ public class GetOrdersEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("/orders", async (BuildingBlocks.Web.Security.ICurrentUser currentUser, IQueryHandler<GetOrdersQuery, GetOrdersResult> handler, CancellationToken ct) =>
+        app.MapGet("/orders", async (ICurrentUser currentUser, IQueryHandler<GetOrdersQuery, GetOrdersResult> handler, CancellationToken ct) =>
         {
-            var userName = currentUser.Name ?? throw new UnauthorizedAccessException("User is not authenticated.");
+            var userName = currentUser.GetRequiredName();
             var result = await handler.Handle(new GetOrdersQuery(userName), ct);
             return result.Match(res => res);
         })

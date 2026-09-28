@@ -1,6 +1,7 @@
 using BuildingBlocks.Core.CQRS;
 using BuildingBlocks.Web.Endpoints;
 using BuildingBlocks.Web.Extensions;
+using BuildingBlocks.Web.Security;
 
 namespace Basket.API.Features.RemoveItemFromBasket;
 
@@ -10,9 +11,9 @@ public sealed class RemoveItemFromBasketEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapDelete("/basket/items/{productId}", async (Guid productId, BuildingBlocks.Web.Security.ICurrentUser currentUser, ICommandHandler<RemoveItemFromBasketCommand, RemoveItemFromBasketResult> handler, CancellationToken ct) =>
+        app.MapDelete("/basket/items/{productId}", async (Guid productId, ICurrentUser currentUser, ICommandHandler<RemoveItemFromBasketCommand, RemoveItemFromBasketResult> handler, CancellationToken ct) =>
         {
-            var userName = currentUser.Name ?? throw new UnauthorizedAccessException("User is not authenticated.");
+            var userName = currentUser.GetRequiredName();
             var result = await handler.Handle(new RemoveItemFromBasketCommand(userName, productId), ct);
 
             return result.Match(success => Results.Ok(new RemoveItemFromBasketResponse(success.IsSuccess)));

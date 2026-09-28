@@ -27,7 +27,7 @@ public class CheckoutBasketEndpoint : IEndpoint
     {
         app.MapPost("/basket/checkout", async (CheckoutBasketRequest request, ICurrentUser currentUser, ICommandHandler<CheckoutBasketCommand, CheckoutBasketResult> handler, CancellationToken ct) =>
         {
-            var userName = currentUser.Name ?? throw new UnauthorizedAccessException("User is not authenticated.");
+            var userName = currentUser.GetRequiredName();
             
             var command = new CheckoutBasketCommand(
                 userName, request.FirstName, request.LastName, request.EmailAddress, request.AddressLine, 

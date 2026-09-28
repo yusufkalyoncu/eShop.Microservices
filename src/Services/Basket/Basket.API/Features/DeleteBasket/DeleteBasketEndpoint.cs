@@ -1,6 +1,7 @@
 using BuildingBlocks.Core.CQRS;
 using BuildingBlocks.Web.Endpoints;
 using BuildingBlocks.Web.Extensions;
+using BuildingBlocks.Web.Security;
 
 namespace Basket.API.Features.DeleteBasket;
 
@@ -10,9 +11,9 @@ public sealed class DeleteBasketEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapDelete("/basket", async (BuildingBlocks.Web.Security.ICurrentUser currentUser, ICommandHandler<DeleteBasketCommand, DeleteBasketResult> handler, CancellationToken ct) =>
+        app.MapDelete("/basket", async (ICurrentUser currentUser, ICommandHandler<DeleteBasketCommand, DeleteBasketResult> handler, CancellationToken ct) =>
         {
-            var userName = currentUser.Name ?? throw new UnauthorizedAccessException("User is not authenticated.");
+            var userName = currentUser.GetRequiredName();
             var result = await handler.Handle(new DeleteBasketCommand(userName), ct);
 
             return result.Match(success => Results.Ok(new DeleteBasketResponse(success.IsSuccess)));

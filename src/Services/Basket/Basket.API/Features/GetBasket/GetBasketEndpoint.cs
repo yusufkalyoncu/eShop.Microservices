@@ -15,7 +15,7 @@ public sealed class GetBasketEndpoint : IEndpoint
     {
         app.MapGet("/basket", async (ICurrentUser currentUser, IQueryHandler<GetBasketQuery, GetBasketResult> handler, CancellationToken ct) =>
         {
-            var userName = currentUser.Name ?? throw new UnauthorizedAccessException("User is not authenticated.");
+            var userName = currentUser.GetRequiredName();
             var result = await handler.Handle(new GetBasketQuery(userName), ct);
 
             return result.Match(success =>

@@ -1,3 +1,5 @@
+using BuildingBlocks.Core.Domain.Exceptions;
+using BuildingBlocks.Core.Exceptions;
 using BuildingBlocks.Core.Results;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -24,16 +26,19 @@ internal sealed class GlobalExceptionHandler(
             Detail = exception.Message
         };
 
-        if (exception is BuildingBlocks.Core.Domain.Exceptions.DomainException domainException)
+        if (exception is CustomException customException)
         {
-            problemDetails.Title = "Domain Rule Violation";
-            problemDetails.Detail = domainException.Error.Description;
+            problemDetails.Title = exception is DomainException 
+                ? "Domain Rule Violation" 
+                : "Application Error";
+            
+            problemDetails.Detail = customException.Error.Description;
             problemDetails.Extensions = new Dictionary<string, object?>
             {
-                { "errors", new[] { domainException.Error.Code } }
+                { "errors", new[] { customException.Error.Code } }
             };
 
-            problemDetails.Status = domainException.Error.Type switch
+            problemDetails.Status = customException.Error.Type switch
             {
                 ErrorType.NotFound => StatusCodes.Status404NotFound,
                 ErrorType.BadRequest => StatusCodes.Status400BadRequest,

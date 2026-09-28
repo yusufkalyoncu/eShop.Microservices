@@ -1,6 +1,7 @@
 using BuildingBlocks.Core.CQRS;
 using BuildingBlocks.Web.Endpoints;
 using BuildingBlocks.Web.Extensions;
+using BuildingBlocks.Web.Security;
 
 namespace Basket.API.Features.UpdateItemQuantityInBasket;
 
@@ -11,9 +12,9 @@ public sealed class UpdateItemQuantityInBasketEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPut("/basket/items/{productId}", async (Guid productId, UpdateItemQuantityInBasketRequest request, BuildingBlocks.Web.Security.ICurrentUser currentUser, ICommandHandler<UpdateItemQuantityInBasketCommand, UpdateItemQuantityInBasketResult> handler, CancellationToken ct) =>
+        app.MapPut("/basket/items/{productId}", async (Guid productId, UpdateItemQuantityInBasketRequest request, ICurrentUser currentUser, ICommandHandler<UpdateItemQuantityInBasketCommand, UpdateItemQuantityInBasketResult> handler, CancellationToken ct) =>
         {
-            var userName = currentUser.Name ?? throw new UnauthorizedAccessException("User is not authenticated.");
+            var userName = currentUser.GetRequiredName();
             var command = new UpdateItemQuantityInBasketCommand(userName, productId, request.Quantity);
             var result = await handler.Handle(command, ct);
 
