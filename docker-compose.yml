@@ -138,6 +138,7 @@ services:
       - ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address=http://identity.api:8080
       - ReverseProxy__Clusters__ordering-cluster__Destinations__destination1__Address=http://ordering.api:8080
       - ReverseProxy__Clusters__inventory-cluster__Destinations__destination1__Address=http://inventory.api:8080
+      - ReverseProxy__Clusters__payment-cluster__Destinations__destination1__Address=http://payment.api:8080
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
     ports:
@@ -371,6 +372,39 @@ services:
       - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
     ports:
       - "8085:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+    restart: unless-stopped
+
+  payment.api:
+    image: eshop-payment-api
+    container_name: eshop-payment-api
+    build:
+      context: .
+      dockerfile: src/Services/Payment/Payment.API/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Postgres__Host=postgres
+      - Postgres__Port=5432
+      - Postgres__Username=postgres
+      - Postgres__Password=postgrespassword
+      - Postgres__Database=paymentdb
+      - Identity__Authority=http://keycloak:8080/realms/eShopRealm
+      - Identity__Audience=eshop-gateway-client
+      - Identity__ValidIssuers__0=http://keycloak:8080/realms/eShopRealm
+      - Identity__ValidIssuers__1=http://localhost:9090/realms/eShopRealm
+      - RabbitMq__Host=amqp://rabbitmq:5672
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+    ports:
+      - "8086:8080"
     depends_on:
       postgres:
         condition: service_healthy
