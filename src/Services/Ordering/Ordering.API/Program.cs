@@ -49,6 +49,7 @@ builder.Services.AddApplicationHandlers(typeof(Program).Assembly);
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddGlobalExceptionHandler();
 builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddCurrentUser();
 builder.Services.AddEndpoints(typeof(Program).Assembly);
 builder.Services.AddDocs();
 
