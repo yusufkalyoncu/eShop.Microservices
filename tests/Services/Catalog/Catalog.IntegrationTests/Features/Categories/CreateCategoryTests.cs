@@ -7,7 +7,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Catalog.IntegrationTests.Features;
+namespace Catalog.IntegrationTests.Features.Categories;
 
 public class CreateCategoryTests(CatalogApiFactory factory) : IClassFixture<CatalogApiFactory>
 {
