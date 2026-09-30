@@ -44,6 +44,10 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="Catalog.IntegrationTests" />
+    </ItemGroup>
+
     <PropertyGroup>
         <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     </PropertyGroup>

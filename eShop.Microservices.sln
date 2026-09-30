@@ -130,6 +130,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Payment", "Payment", "{FE38
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payment.UnitTests", "tests\Services\Payment\Payment.UnitTests\Payment.UnitTests.csproj", "{65CBE57F-A405-4494-B3D3-7DEF171A0980}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catalog.IntegrationTests", "tests\Services\Catalog\Catalog.IntegrationTests\Catalog.IntegrationTests.csproj", "{DBD03A19-C98B-4142-83CB-2D20D4CB4D70}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -596,6 +598,18 @@ Global
 		{65CBE57F-A405-4494-B3D3-7DEF171A0980}.Release|x64.Build.0 = Release|Any CPU
 		{65CBE57F-A405-4494-B3D3-7DEF171A0980}.Release|x86.ActiveCfg = Release|Any CPU
 		{65CBE57F-A405-4494-B3D3-7DEF171A0980}.Release|x86.Build.0 = Release|Any CPU
+		{DBD03A19-C98B-4142-83CB-2D20D4CB4D70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBD03A19-C98B-4142-83CB-2D20D4CB4D70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBD03A19-C98B-4142-83CB-2D20D4CB4D70}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DBD03A19-C98B-4142-83CB-2D20D4CB4D70}.Debug|x64.Build.0 = Debug|Any CPU
+		{DBD03A19-C98B-4142-83CB-2D20D4CB4D70}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DBD03A19-C98B-4142-83CB-2D20D4CB4D70}.Debug|x86.Build.0 = Debug|Any CPU
+		{DBD03A19-C98B-4142-83CB-2D20D4CB4D70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBD03A19-C98B-4142-83CB-2D20D4CB4D70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBD03A19-C98B-4142-83CB-2D20D4CB4D70}.Release|x64.ActiveCfg = Release|Any CPU
+		{DBD03A19-C98B-4142-83CB-2D20D4CB4D70}.Release|x64.Build.0 = Release|Any CPU
+		{DBD03A19-C98B-4142-83CB-2D20D4CB4D70}.Release|x86.ActiveCfg = Release|Any CPU
+		{DBD03A19-C98B-4142-83CB-2D20D4CB4D70}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -664,5 +678,6 @@ Global
 		{BF55361C-FDA8-4DC3-B63D-E872C10C167A} = {633478B9-7852-4A8D-8BE0-37B86810148D}
 		{FE388913-1B93-49A4-A353-EBDA7B40CD3A} = {0470460F-10C5-4EEA-9F56-5084C503B723}
 		{65CBE57F-A405-4494-B3D3-7DEF171A0980} = {FE388913-1B93-49A4-A353-EBDA7B40CD3A}
+		{DBD03A19-C98B-4142-83CB-2D20D4CB4D70} = {BF0129AC-A808-4F58-989D-9AD7F636D873}
 	EndGlobalSection
 EndGlobal
