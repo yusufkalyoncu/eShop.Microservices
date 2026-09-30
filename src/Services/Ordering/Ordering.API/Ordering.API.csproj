@@ -33,4 +33,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="Ordering.UnitTests" />
+    </ItemGroup>
+
 </Project>
