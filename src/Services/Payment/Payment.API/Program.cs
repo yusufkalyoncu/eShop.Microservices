@@ -1,9 +1,7 @@
 using BuildingBlocks.Application;
 using BuildingBlocks.Observability;
-using BuildingBlocks.Web.Endpoints;
 using Payment.API.Infrastructure.Data;
 using BuildingBlocks.Persistence.PostgreSql;
-using BuildingBlocks.Web.OpenApi;
 using BuildingBlocks.Web.Exceptions;
 using BuildingBlocks.Persistence.EntityFrameworkCore.Extensions;
 using BuildingBlocks.Messaging.MassTransit;
@@ -54,30 +52,9 @@ builder.Services.AddGlobalExceptionHandler();
 // Add JWT Authentication
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
-// Add Endpoints
-builder.Services.AddEndpoints(typeof(Program).Assembly);
-
-// Add API Versioning and OpenAPI
-builder.Services.AddDocs();
-
 var app = builder.Build();
 
 // Automatically apply EF Core migrations
 app.Services.ApplyDatabaseMigrations<PaymentDbContext>();
-
-// Use Global Exception Handler
-app.UseGlobalExceptionHandler();
-
-// Map the endpoints automatically
-app.MapEndpoints();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-// Map OpenAPI endpoints and Scalar UI
-if (app.Environment.IsDevelopment())
-{
-    app.UseDocs();
-}
 
 app.Run();
