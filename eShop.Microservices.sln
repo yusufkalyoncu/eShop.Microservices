@@ -108,6 +108,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payment.API", "src\Services
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payment.Contracts", "src\Services\Payment\Payment.Contracts\Payment.Contracts.csproj", "{4EE0A1C1-D8EE-4DC1-B1AD-C11F158008C6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ordering.Saga", "src\Services\Ordering\Ordering.Saga\Ordering.Saga.csproj", "{B2E363A5-D44B-4EEC-A1B1-F75FEEF4D4A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -502,6 +504,18 @@ Global
 		{4EE0A1C1-D8EE-4DC1-B1AD-C11F158008C6}.Release|x64.Build.0 = Release|Any CPU
 		{4EE0A1C1-D8EE-4DC1-B1AD-C11F158008C6}.Release|x86.ActiveCfg = Release|Any CPU
 		{4EE0A1C1-D8EE-4DC1-B1AD-C11F158008C6}.Release|x86.Build.0 = Release|Any CPU
+		{B2E363A5-D44B-4EEC-A1B1-F75FEEF4D4A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2E363A5-D44B-4EEC-A1B1-F75FEEF4D4A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2E363A5-D44B-4EEC-A1B1-F75FEEF4D4A1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B2E363A5-D44B-4EEC-A1B1-F75FEEF4D4A1}.Debug|x64.Build.0 = Debug|Any CPU
+		{B2E363A5-D44B-4EEC-A1B1-F75FEEF4D4A1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B2E363A5-D44B-4EEC-A1B1-F75FEEF4D4A1}.Debug|x86.Build.0 = Debug|Any CPU
+		{B2E363A5-D44B-4EEC-A1B1-F75FEEF4D4A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2E363A5-D44B-4EEC-A1B1-F75FEEF4D4A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2E363A5-D44B-4EEC-A1B1-F75FEEF4D4A1}.Release|x64.ActiveCfg = Release|Any CPU
+		{B2E363A5-D44B-4EEC-A1B1-F75FEEF4D4A1}.Release|x64.Build.0 = Release|Any CPU
+		{B2E363A5-D44B-4EEC-A1B1-F75FEEF4D4A1}.Release|x86.ActiveCfg = Release|Any CPU
+		{B2E363A5-D44B-4EEC-A1B1-F75FEEF4D4A1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -559,5 +573,6 @@ Global
 		{DD88B973-5103-423E-A442-0C06BFBAF314} = {DF1D6293-34B3-4597-903A-E841669FD8E4}
 		{4FB5D6B7-B888-4C39-952F-CF04C12F34DC} = {DD88B973-5103-423E-A442-0C06BFBAF314}
 		{4EE0A1C1-D8EE-4DC1-B1AD-C11F158008C6} = {DD88B973-5103-423E-A442-0C06BFBAF314}
+		{B2E363A5-D44B-4EEC-A1B1-F75FEEF4D4A1} = {F50FDEF5-8E30-4F20-B8CA-F5651F282396}
 	EndGlobalSection
 EndGlobal
