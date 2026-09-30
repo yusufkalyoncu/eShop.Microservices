@@ -11,10 +11,6 @@ public record CheckoutBasketCommand(
     string Country,
     string State,
     string ZipCode,
-    string CardName,
-    string CardNumber,
-    string Expiration,
-    string CVV,
-    int PaymentMethod) : ICommand<CheckoutBasketResult>;
+    string PaymentToken) : ICommand<CheckoutBasketResult>;
 
 public record CheckoutBasketResult(bool IsSuccess);

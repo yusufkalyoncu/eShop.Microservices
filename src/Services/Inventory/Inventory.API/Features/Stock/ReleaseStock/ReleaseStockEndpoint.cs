@@ -4,7 +4,7 @@ using BuildingBlocks.Web.Extensions;
 
 namespace Inventory.API.Features.Stock.ReleaseStock;
 
-public record ReleaseStockRequest(Guid ProductId, int Quantity);
+public record ReleaseStockRequest(Dictionary<Guid, int> Items);
 
 public sealed class ReleaseStockEndpoint : IEndpoint
 {
@@ -12,7 +12,7 @@ public sealed class ReleaseStockEndpoint : IEndpoint
     {
         app.MapPost("/stock/release", async (ReleaseStockRequest request, ICommandHandler<ReleaseStockCommand> handler, CancellationToken ct) =>
         {
-            var command = new ReleaseStockCommand(request.ProductId, request.Quantity);
+            var command = new ReleaseStockCommand(request.Items);
             var result = await handler.Handle(command, ct);
             return result.Match();
         })

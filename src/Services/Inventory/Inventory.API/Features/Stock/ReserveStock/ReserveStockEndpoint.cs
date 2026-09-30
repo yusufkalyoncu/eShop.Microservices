@@ -4,7 +4,7 @@ using BuildingBlocks.Web.Extensions;
 
 namespace Inventory.API.Features.Stock.ReserveStock;
 
-public record ReserveStockRequest(Guid ProductId, int Quantity);
+public record ReserveStockRequest(Dictionary<Guid, int> Items);
 
 public sealed class ReserveStockEndpoint : IEndpoint
 {
@@ -12,7 +12,7 @@ public sealed class ReserveStockEndpoint : IEndpoint
     {
         app.MapPost("/stock/reserve", async (ReserveStockRequest request, ICommandHandler<ReserveStockCommand> handler, CancellationToken ct) =>
         {
-            var command = new ReserveStockCommand(request.ProductId, request.Quantity);
+            var command = new ReserveStockCommand(request.Items);
             var result = await handler.Handle(command, ct);
             return result.Match();
         })

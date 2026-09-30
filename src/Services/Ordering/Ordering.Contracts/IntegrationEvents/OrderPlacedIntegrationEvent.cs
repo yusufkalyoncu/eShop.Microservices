@@ -4,10 +4,13 @@ namespace Ordering.Contracts.IntegrationEvents;
 
 public class OrderPlacedIntegrationEvent : IIntegrationEvent
 {
-    public Guid EventId { get; set; } = Guid.NewGuid();
+    public Guid EventId { get; } = Guid.NewGuid();
     public static string EventName => "OrderPlacedIntegrationEvent";
 
-    public Guid OrderId { get; set; }
-    public string UserName { get; set; } = null!;
-    public string OrderStatus { get; set; } = null!;
+    public Guid OrderId { get; init; }
+    public string UserName { get; init; } = null!;
+    public string OrderStatus { get; init; } = null!;
+    public decimal TotalAmount { get; init; }
+    public string PaymentToken { get; init; } = null!;
+    public Dictionary<Guid, int> Items { get; init; } = new();
 }

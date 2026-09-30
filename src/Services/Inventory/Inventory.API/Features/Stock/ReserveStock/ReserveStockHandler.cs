@@ -11,15 +11,22 @@ internal sealed class ReserveStockHandler(InventoryDbContext dbContext) : IComma
 {
     public async Task<Result> Handle(ReserveStockCommand request, CancellationToken cancellationToken)
     {
-        var item = await dbContext.InventoryItems
-            .FirstOrDefaultAsync(x => x.ProductId == request.ProductId, cancellationToken);
+        var productIds = request.Items.Keys.ToList();
+        
+        var inventoryItems = await dbContext.InventoryItems
+            .Where(x => productIds.Contains(x.ProductId))
+            .ToListAsync(cancellationToken);
 
-        if (item is null)
+        foreach (var requestedItem in request.Items)
         {
-            throw new DomainException(InventoryErrors.ProductNotFound(request.ProductId));
+            var item = inventoryItems.FirstOrDefault(x => x.ProductId == requestedItem.Key);
+            if (item is null)
+            {
+                throw new DomainException(InventoryErrors.ProductNotFound(requestedItem.Key));
+            }
+            
+            item.ReserveStock(requestedItem.Value);
         }
-
-        item.ReserveStock(request.Quantity);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

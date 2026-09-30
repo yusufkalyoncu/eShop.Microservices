@@ -20,11 +20,7 @@ public class BasketCheckoutIntegrationEvent : IIntegrationEvent
     public string ZipCode { get; init; } = null!;
 
     // Payment
-    public string CardName { get; init; } = null!;
-    public string CardNumber { get; init; } = null!;
-    public string Expiration { get; init; } = null!;
-    public string CVV { get; init; } = null!;
-    public int PaymentMethod { get; init; }
+    public string PaymentToken { get; init; } = null!;
 
     public List<BasketItemDto> Items { get; init; } = [];
 }

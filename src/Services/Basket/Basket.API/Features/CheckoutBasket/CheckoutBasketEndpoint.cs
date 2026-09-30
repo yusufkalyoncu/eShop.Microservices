@@ -13,11 +13,7 @@ public record CheckoutBasketRequest(
     string Country,
     string State,
     string ZipCode,
-    string CardName,
-    string CardNumber,
-    string Expiration,
-    string CVV,
-    int PaymentMethod);
+    string PaymentToken);
 
 public record CheckoutBasketResponse(bool IsSuccess);
 
@@ -31,8 +27,7 @@ public class CheckoutBasketEndpoint : IEndpoint
             
             var command = new CheckoutBasketCommand(
                 userName, request.FirstName, request.LastName, request.EmailAddress, request.AddressLine, 
-                request.Country, request.State, request.ZipCode, request.CardName, 
-                request.CardNumber, request.Expiration, request.CVV, request.PaymentMethod);
+                request.Country, request.State, request.ZipCode, request.PaymentToken);
                 
             var result = await handler.Handle(command, ct);
             

@@ -39,11 +39,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.ComplexProperty(o => o.Payment, p =>
         {
-            p.Property(x => x.CardName).HasMaxLength(100);
-            p.Property(x => x.CardNumber).HasMaxLength(25);
-            p.Property(x => x.Expiration).HasMaxLength(10);
-            p.Property(x => x.CVV).HasMaxLength(5);
-            p.Property(x => x.PaymentMethod);
+            p.Property(x => x.PaymentToken).HasMaxLength(255).IsRequired();
         });
 
         builder.HasMany(o => o.OrderItems)

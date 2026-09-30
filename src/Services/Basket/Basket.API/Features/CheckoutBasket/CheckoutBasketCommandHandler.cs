@@ -32,11 +32,7 @@ public class CheckoutBasketCommandHandler(IDocumentSession session, IPublishEndp
             Country = request.Country,
             State = request.State,
             ZipCode = request.ZipCode,
-            CardName = request.CardName,
-            CardNumber = request.CardNumber,
-            Expiration = request.Expiration,
-            CVV = request.CVV,
-            PaymentMethod = request.PaymentMethod,
+            PaymentToken = request.PaymentToken,
             Items = basket.Items.Select(x => new BasketItemDto
             {
                 ProductId = x.ProductId,

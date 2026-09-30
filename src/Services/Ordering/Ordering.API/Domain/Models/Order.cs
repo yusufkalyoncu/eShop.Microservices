@@ -50,4 +50,9 @@ public class Order : AggregateRoot<Guid>
     {
         Status = OrderStatus.Paid;
     }
+
+    public void MarkAsCancelled()
+    {
+        Status = OrderStatus.Cancelled;
+    }
 }

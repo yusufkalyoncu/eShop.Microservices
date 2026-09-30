@@ -21,12 +21,7 @@ public class BasketCheckoutIntegrationEventHandler(OrderingDbContext dbContext, 
             @event.State,
             @event.ZipCode);
 
-        var payment = new PaymentDetails(
-            @event.CardName,
-            @event.CardNumber,
-            @event.Expiration,
-            @event.CVV,
-            @event.PaymentMethod);
+        var payment = new PaymentDetails(@event.PaymentToken);
 
         var orderId = Guid.NewGuid();
 
@@ -49,7 +44,10 @@ public class BasketCheckoutIntegrationEventHandler(OrderingDbContext dbContext, 
         {
             OrderId = order.Id,
             UserName = order.UserName,
-            OrderStatus = order.Status.ToString()
+            OrderStatus = order.Status.ToString(),
+            TotalAmount = order.TotalPrice,
+            PaymentToken = @event.PaymentToken,
+            Items = @event.Items.ToDictionary(x => x.ProductId, x => x.Quantity)
         }, cancellationToken);
     }
 }
