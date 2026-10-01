@@ -140,6 +140,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ordering.IntegrationTests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inventory.IntegrationTests", "tests\Services\Inventory\Inventory.IntegrationTests\Inventory.IntegrationTests.csproj", "{16655830-FD77-440C-9433-731EDF59D436}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payment.IntegrationTests", "tests\Services\Payment\Payment.IntegrationTests\Payment.IntegrationTests.csproj", "{A16890E8-41A3-4EA2-8A47-B7C688C4979F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -666,6 +668,18 @@ Global
 		{16655830-FD77-440C-9433-731EDF59D436}.Release|x64.Build.0 = Release|Any CPU
 		{16655830-FD77-440C-9433-731EDF59D436}.Release|x86.ActiveCfg = Release|Any CPU
 		{16655830-FD77-440C-9433-731EDF59D436}.Release|x86.Build.0 = Release|Any CPU
+		{A16890E8-41A3-4EA2-8A47-B7C688C4979F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A16890E8-41A3-4EA2-8A47-B7C688C4979F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A16890E8-41A3-4EA2-8A47-B7C688C4979F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A16890E8-41A3-4EA2-8A47-B7C688C4979F}.Debug|x64.Build.0 = Debug|Any CPU
+		{A16890E8-41A3-4EA2-8A47-B7C688C4979F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A16890E8-41A3-4EA2-8A47-B7C688C4979F}.Debug|x86.Build.0 = Debug|Any CPU
+		{A16890E8-41A3-4EA2-8A47-B7C688C4979F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A16890E8-41A3-4EA2-8A47-B7C688C4979F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A16890E8-41A3-4EA2-8A47-B7C688C4979F}.Release|x64.ActiveCfg = Release|Any CPU
+		{A16890E8-41A3-4EA2-8A47-B7C688C4979F}.Release|x64.Build.0 = Release|Any CPU
+		{A16890E8-41A3-4EA2-8A47-B7C688C4979F}.Release|x86.ActiveCfg = Release|Any CPU
+		{A16890E8-41A3-4EA2-8A47-B7C688C4979F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -739,5 +753,6 @@ Global
 		{7C65E8D0-A9C3-4921-B124-134D7620E257} = {71812828-9AE6-47D3-A5D6-AB51F356D28D}
 		{269E945E-C4A1-420A-A14B-F297392625F8} = {633478B9-7852-4A8D-8BE0-37B86810148D}
 		{16655830-FD77-440C-9433-731EDF59D436} = {63CC187B-A21A-4ADD-8DCB-CC2FDD11B8B6}
+		{A16890E8-41A3-4EA2-8A47-B7C688C4979F} = {FE388913-1B93-49A4-A353-EBDA7B40CD3A}
 	EndGlobalSection
 EndGlobal
