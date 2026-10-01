@@ -49,3 +49,5 @@ var host = builder.Build();
 host.Services.ApplyDatabaseMigrations<SagaDbContext>();
 
 await host.RunAsync();
+
+public partial class Program { }

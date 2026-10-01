@@ -10,7 +10,7 @@ public class OrderState : SagaStateMachineInstance, ISagaVersion
     public int Version { get; set; }
     
     // The current state of the state machine (stored as a string in DB)
-    public string CurrentState { get; init; } = string.Empty;
+    public string CurrentState { get; set; } = string.Empty;
 
     // Data saved during the saga to use in subsequent steps
     public Guid OrderId { get; set; }

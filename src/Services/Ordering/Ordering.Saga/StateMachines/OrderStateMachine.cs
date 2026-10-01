@@ -9,16 +9,16 @@ namespace Ordering.Saga.StateMachines;
 
 public class OrderStateMachine : MassTransitStateMachine<OrderState>
 {
-    private static State StockReserving => null!;
-    private static State PaymentProcessing => null!;
-    private static State Completed => null!;
-    private static State Cancelled => null!;
+    public State StockReserving { get; private set; } = null!;
+    public State PaymentProcessing { get; private set; } = null!;
+    public State Completed { get; private set; } = null!;
+    public State Cancelled { get; private set; } = null!;
 
-    private static Event<OrderPlacedIntegrationEvent> OrderPlacedEvent => null!;
-    private static Event<StockReservedEvent> StockReservedEvent => null!;
-    private static Event<StockReservationFailedEvent> StockReservationFailedEvent => null!;
-    private static Event<PaymentSucceededEvent> PaymentSucceededEvent => null!;
-    private static Event<PaymentFailedEvent> PaymentFailedEvent => null!;
+    public Event<OrderPlacedIntegrationEvent> OrderPlacedEvent { get; private set; } = null!;
+    public Event<StockReservedEvent> StockReservedEvent { get; private set; } = null!;
+    public Event<StockReservationFailedEvent> StockReservationFailedEvent { get; private set; } = null!;
+    public Event<PaymentSucceededEvent> PaymentSucceededEvent { get; private set; } = null!;
+    public Event<PaymentFailedEvent> PaymentFailedEvent { get; private set; } = null!;
 
     public OrderStateMachine()
     {

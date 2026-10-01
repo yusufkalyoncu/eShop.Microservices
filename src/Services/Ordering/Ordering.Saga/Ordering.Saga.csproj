@@ -25,4 +25,8 @@
         <ProjectReference Include="..\..\Inventory\Inventory.Contracts\Inventory.Contracts.csproj"/>
         <ProjectReference Include="..\..\Payment\Payment.Contracts\Payment.Contracts.csproj"/>
     </ItemGroup>
+    
+    <ItemGroup>
+        <InternalsVisibleTo Include="Ordering.Saga.IntegrationTests" />
+    </ItemGroup>
 </Project>
