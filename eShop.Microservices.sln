@@ -136,6 +136,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.IntegrationTests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basket.IntegrationTests", "tests\Services\Basket\Basket.IntegrationTests\Basket.IntegrationTests.csproj", "{7C65E8D0-A9C3-4921-B124-134D7620E257}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ordering.IntegrationTests", "tests\Services\Ordering\Ordering.IntegrationTests\Ordering.IntegrationTests.csproj", "{269E945E-C4A1-420A-A14B-F297392625F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -638,6 +640,18 @@ Global
 		{7C65E8D0-A9C3-4921-B124-134D7620E257}.Release|x64.Build.0 = Release|Any CPU
 		{7C65E8D0-A9C3-4921-B124-134D7620E257}.Release|x86.ActiveCfg = Release|Any CPU
 		{7C65E8D0-A9C3-4921-B124-134D7620E257}.Release|x86.Build.0 = Release|Any CPU
+		{269E945E-C4A1-420A-A14B-F297392625F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{269E945E-C4A1-420A-A14B-F297392625F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{269E945E-C4A1-420A-A14B-F297392625F8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{269E945E-C4A1-420A-A14B-F297392625F8}.Debug|x64.Build.0 = Debug|Any CPU
+		{269E945E-C4A1-420A-A14B-F297392625F8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{269E945E-C4A1-420A-A14B-F297392625F8}.Debug|x86.Build.0 = Debug|Any CPU
+		{269E945E-C4A1-420A-A14B-F297392625F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{269E945E-C4A1-420A-A14B-F297392625F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{269E945E-C4A1-420A-A14B-F297392625F8}.Release|x64.ActiveCfg = Release|Any CPU
+		{269E945E-C4A1-420A-A14B-F297392625F8}.Release|x64.Build.0 = Release|Any CPU
+		{269E945E-C4A1-420A-A14B-F297392625F8}.Release|x86.ActiveCfg = Release|Any CPU
+		{269E945E-C4A1-420A-A14B-F297392625F8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -709,5 +723,6 @@ Global
 		{DBD03A19-C98B-4142-83CB-2D20D4CB4D70} = {BF0129AC-A808-4F58-989D-9AD7F636D873}
 		{7459BD51-EC61-467E-8B48-43D10D3EA2FD} = {3EF9C13B-35DB-43B6-BAE8-9D51D8E18706}
 		{7C65E8D0-A9C3-4921-B124-134D7620E257} = {71812828-9AE6-47D3-A5D6-AB51F356D28D}
+		{269E945E-C4A1-420A-A14B-F297392625F8} = {633478B9-7852-4A8D-8BE0-37B86810148D}
 	EndGlobalSection
 EndGlobal

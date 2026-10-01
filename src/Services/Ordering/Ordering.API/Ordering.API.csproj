@@ -35,6 +35,7 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="Ordering.UnitTests" />
+        <InternalsVisibleTo Include="Ordering.IntegrationTests" />
     </ItemGroup>
 
 </Project>
